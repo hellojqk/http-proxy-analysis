@@ -29,13 +29,8 @@ var (
 // createAPPCmd represents the app command
 var createAPPCmd = &cobra.Command{
 	Use:   "app",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "创建应用",
+	Long:  `创建应用`,
 	Run: func(cmd *cobra.Command, args []string) {
 		err := service.CreateAPP(*name, *oldHost, *newHost)
 		if err != nil {
@@ -50,6 +45,9 @@ func init() {
 	name = createAPPCmd.Flags().StringP("appName", "a", "", "应用名称,create 时指定")
 	oldHost = createAPPCmd.Flags().StringP("oldHost", "o", "", "旧应用地址,create 时指定")
 	newHost = createAPPCmd.Flags().StringP("newHost", "n", "", "新应用地址,create 时指定")
+
+	createAPPCmd.MarkFlagRequired("appName")
+	createAPPCmd.MarkFlagRequired("oldHost")
 	// //绑定到viper上
 	// viper.BindPFlag("app.name", createAPPCmd.Flags().Lookup("name"))
 	// viper.BindPFlag("app.oldHost", createAPPCmd.Flags().Lookup("oldHost"))

@@ -16,36 +16,29 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
-
+	"github.com/hellojqk/refactor/src/server/service"
 	"github.com/spf13/cobra"
 )
+
+var url *string
+var app *string
 
 // createAPICmd represents the api command
 var createAPICmd = &cobra.Command{
 	Use:   "api",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "创建API",
+	Long:  `创建API，目前仅支持从swagger api文档中导入`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("api called")
+		service.ImportSwaggerDoc(*app, *url)
 	},
 }
 
 func init() {
 	createCmd.AddCommand(createAPICmd)
 
-	// Here you will define your flags and configuration settings.
+	app = createAPICmd.Flags().StringP("app", "a", "", "导入应用名称")
+	createAPICmd.MarkFlagRequired("app")
 
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// createAPICmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// createAPICmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	url = createAPICmd.Flags().StringP("url", "u", "", "swagger文档地址")
+	createAPICmd.MarkFlagRequired("url")
 }
