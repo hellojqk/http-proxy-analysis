@@ -16,12 +16,19 @@ limitations under the License.
 package cmd
 
 import (
+	"github.com/hellojqk/refactor/src/server/service"
 	"github.com/spf13/cobra"
 )
 
-// getCmd represents the get command
-var getCmd = &cobra.Command{
-	Use:   "get",
+var (
+	name    *string
+	oldHost *string
+	newHost *string
+)
+
+// createAPPCmd represents the app command
+var createAPPCmd = &cobra.Command{
+	Use:   "app",
 	Short: "A brief description of your command",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
@@ -30,19 +37,21 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		err := service.CreateAPP(*name, *oldHost, *newHost)
+		if err != nil {
+			panic(err)
+		}
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(getCmd)
+	createCmd.AddCommand(createAPPCmd)
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// getCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// getCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	name = createAPPCmd.Flags().StringP("appName", "a", "", "应用名称,create 时指定")
+	oldHost = createAPPCmd.Flags().StringP("oldHost", "o", "", "旧应用地址,create 时指定")
+	newHost = createAPPCmd.Flags().StringP("newHost", "n", "", "新应用地址,create 时指定")
+	// //绑定到viper上
+	// viper.BindPFlag("app.name", createAPPCmd.Flags().Lookup("name"))
+	// viper.BindPFlag("app.oldHost", createAPPCmd.Flags().Lookup("oldHost"))
+	// viper.BindPFlag("app.newHost", createAPPCmd.Flags().Lookup("newHost"))
 }
