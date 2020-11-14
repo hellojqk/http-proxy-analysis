@@ -1,7 +1,6 @@
 package core
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/pkg/errors"
@@ -65,7 +64,6 @@ var DB *gorm.DB
 
 // InitConn 初始化连接
 func InitConn() {
-	fmt.Println("Init")
 	connectionStr := viper.GetString("connectionString")
 	if connectionStr == "" {
 		panic("connectionStr is null")
