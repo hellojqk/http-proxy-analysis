@@ -1,0 +1,1 @@
+CREATE TABLE `applications` (`name` nvarchar NOT NULL,`old_host` nvarchar NOT NULL,`new_host` nvarchar NOT NULL,`status` tinyint NOT NULL,`id` bigint unsigned AUTO_INCREMENT NOT NULL,`created_at` datetime(3) NULL,`updated_at` datetime(3) NULL,`deleted_at` datetime(3) NULL,PRIMARY KEY (`id`),INDEX idx_applications_deleted_at (`deleted_at`))
