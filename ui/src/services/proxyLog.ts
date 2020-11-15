@@ -5,3 +5,6 @@ export async function query(params?: any) {
     params,
   });
 }
+export async function retry(id: number) {
+  return request(`/api/proxylog/${id}/retry`, { method: "POST" });
+}

@@ -2,8 +2,8 @@ import React, { useRef, useState } from 'react';
 import { PageContainer } from '@ant-design/pro-layout';
 import { PlusOutlined } from '@ant-design/icons';
 import ProTable, { ActionType, ProColumns } from '@ant-design/pro-table';
-import { Button, Collapse, Divider, Input } from 'antd';
-import { query } from '../services/proxyLog';
+import { Button, Collapse, Divider, Input, message } from 'antd';
+import { query, retry } from '../services/proxyLog';
 
 const { Panel } = Collapse;
 
@@ -111,6 +111,7 @@ export default (): React.ReactNode => {
     {
       title: '创建时间',
       dataIndex: 'CreatedAt',
+      valueType: 'dateTime'
     },
     {
       title: '操作',
@@ -120,7 +121,16 @@ export default (): React.ReactNode => {
         <>
           <a href={`/proxy/${record.ID}`}>对比</a>
           <Divider type="vertical" />
-          <a href="">重发</a>
+          <a onClick={async () => {
+            try {
+              await retry(record.ID);
+              message.success('重发成功');
+              return true;
+            } catch (error) {
+              message.error('重发失败');
+              return false;
+            }
+          }}>重发</a>
         </>
       ),
     },
@@ -138,26 +148,29 @@ export default (): React.ReactNode => {
         columns={columns}
         expandable={{
           rowExpandable: () => true,
-          expandedRowRender: record => <Collapse defaultActiveKey={['1', '2', '3', '4', '5', '6', '7']}>
-            <Panel header="请求路径" key="1">
-              <p>{record.OldRequestURL}</p>
+          expandedRowRender: record => <Collapse defaultActiveKey={['1', '2', '3', '4', '5', '6', '7', '8']}>
+            <Panel header="后端简要分析结果" key="1">
+              <p>{record.AnalysisResult}</p>
             </Panel>
-            <Panel header="请求头部信息" key="2">
+            <Panel header="请求路径" key="2">
+              <p>{record.Application ? record.Application.OldHost + record.OldRequestURL : record.OldRequestURL}</p>
+            </Panel>
+            <Panel header="请求头部信息" key="3">
               <p>{record.OldRequestHeader}</p>
             </Panel>
-            <Panel header="请求发送内容" key="3">
+            <Panel header="请求发送内容" key="4">
               <p>{record.OldRequestBody}</p>
             </Panel>
-            <Panel header={`旧应用返回头部信息，Status：${record.OldResponseStatus}`} key="4">
+            <Panel header={`旧应用返回头部信息，Status：${record.OldResponseStatus}`} key="5">
               <p>{record.OldResponseHeader}</p>
             </Panel>
-            <Panel header="旧应用返回头部信息" key="5">
+            <Panel header="旧应用返回头部信息" key="6">
               <p>{record.OldResponseBody}</p>
             </Panel>
-            <Panel header={`新应用返回头部信息，Status：${record.NewResponseStatus}`} key="6">
+            <Panel header={`新应用返回头部信息，Status：${record.NewResponseStatus}`} key="7">
               <p>{record.NewResponseHeader}</p>
             </Panel>
-            <Panel header="新应用返回头部信息" key="7">
+            <Panel header="新应用返回头部信息" key="8">
               <p>{record.NewResponseBody}</p>
             </Panel>
           </Collapse>,
