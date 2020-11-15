@@ -4,9 +4,12 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/hellojqk/refactor/src/core"
+	"github.com/hellojqk/refactor/src/util"
+	"github.com/pterm/pterm"
 	"github.com/rs/zerolog/log"
 	"gorm.io/gorm"
 )
@@ -79,4 +82,26 @@ func ImportSwaggerDoc(appName string, url string) {
 			continue
 		}
 	}
+}
+
+var apiHeader = []string{"APP_NAME", "URL", "GET", "POST", "PUT", "PATCH", "DELETE", "Status", "CreatedAt"}
+
+// ListAPI 获取API列表
+func ListAPI() (result []core.API) {
+	core.InitConn()
+	result = make([]core.API, 0, 1)
+	err := core.DB.Preload("Application").Find(&result).Error
+	if err != nil {
+		log.Err(err).Msg("list app")
+		return
+	}
+
+	var dataLines = make([][]string, len(result)+1)
+	dataLines[0] = apiHeader
+	for index, item := range result {
+		dataLines[index+1] = []string{item.Application.Name, item.URL, strconv.FormatBool(item.GET), strconv.FormatBool(item.POST), strconv.FormatBool(item.PUT), strconv.FormatBool(item.PATCH), strconv.FormatBool(item.DELETE), strconv.FormatBool(item.Status), item.CreatedAt.Format(util.TimeFormat)}
+	}
+
+	pterm.DefaultTable.WithHasHeader().WithData(dataLines).Render()
+	return
 }

@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"strconv"
 
 	"github.com/hellojqk/refactor/src/core"
 	"github.com/hellojqk/refactor/src/util"
@@ -27,7 +28,7 @@ func CreateAPP(appName string, oldHost string, newHost string) (err error) {
 	return
 }
 
-var headerLine = []string{"APP_NAME", "OLD_HOST", "NEW_HOST", "STATUS", "CREATE_TIME"}
+var appHeader = []string{"APP_NAME", "OLD_HOST", "NEW_HOST", "STATUS", "CREATE_TIME"}
 
 // ListAPP 获取应用列表
 func ListAPP() (result []core.Application) {
@@ -40,13 +41,9 @@ func ListAPP() (result []core.Application) {
 	}
 
 	var dataLines = make([][]string, len(result)+1)
-	dataLines[0] = headerLine
-	for index, app := range result {
-		status := "false"
-		if app.Status {
-			status = "true"
-		}
-		dataLines[index+1] = []string{app.Name, app.OldHost, app.NewHost, status, app.CreatedAt.Format(util.TimeFormat)}
+	dataLines[0] = appHeader
+	for index, item := range result {
+		dataLines[index+1] = []string{item.Name, item.OldHost, item.NewHost, strconv.FormatBool(item.Status), item.CreatedAt.Format(util.TimeFormat)}
 	}
 
 	pterm.DefaultTable.WithHasHeader().WithData(dataLines).Render()

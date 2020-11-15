@@ -37,6 +37,8 @@ type API struct {
 	DELETE        bool   `gorm:"type:tinyint(1);default:0;not null"`    //是否代理此类请求
 	Status        bool   `gorm:"type:tinyint(1);default:0;not null"`    //状态，是否启用
 	Model
+
+	Application Application
 }
 
 // ProxyLog 代理日志

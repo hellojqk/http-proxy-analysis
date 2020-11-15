@@ -20,16 +20,26 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// getAPPCmd represents the app command
-var getAPPCmd = &cobra.Command{
-	Use:   "app",
-	Short: "获取应用列表",
-	Long:  `获取应用列表`,
+// getAPICmd represents the getAPI command
+var getAPICmd = &cobra.Command{
+	Use:   "api",
+	Short: "获取API列表",
+	Long:  `获取API列表`,
 	Run: func(cmd *cobra.Command, args []string) {
-		service.ListAPP()
+		service.ListAPI()
 	},
 }
 
 func init() {
-	getCmd.AddCommand(getAPPCmd)
+	getCmd.AddCommand(getAPICmd)
+
+	// Here you will define your flags and configuration settings.
+
+	// Cobra supports Persistent Flags which will work for this command
+	// and all subcommands, e.g.:
+	// getAPICmd.PersistentFlags().String("foo", "", "A help for foo")
+
+	// Cobra supports local flags which will only run when this command
+	// is called directly, e.g.:
+	// getAPICmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
