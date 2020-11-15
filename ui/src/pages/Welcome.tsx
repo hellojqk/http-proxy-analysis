@@ -3,7 +3,7 @@ import { PageContainer } from '@ant-design/pro-layout';
 import { PlusOutlined } from '@ant-design/icons';
 import ProTable, { ActionType, ProColumns } from '@ant-design/pro-table';
 import { Button, Divider, Input } from 'antd';
-import { queryRule } from './ListTableList/service';
+import { query } from '../services/proxyLog';
 // import { Card, Alert, Typography } from 'antd';
 // import styles from './Welcome.less';
 
@@ -14,32 +14,71 @@ import { queryRule } from './ListTableList/service';
 //     </code>
 //   </pre>
 // );
-export interface TableListItem {
-  key: number;
-  disabled?: boolean;
-  href: string;
-  avatar: string;
-  name: string;
-  owner: string;
-  desc: string;
-  callNo: number;
-  status: number;
-  updatedAt: Date;
-  createdAt: Date;
-  progress: number;
+
+export interface Model {
+  ID: number;
+  CreatedAt: string;
+  UpdatedAt: string;
+}
+export interface Application extends Model {
+  Name: string;
+  OldHost: string;
+  NewHost: string;
+  Status: boolean;
+  APIs: API[];
+}
+export interface API extends Model {
+  ApplicationID: number;
+  URL: string;
+  GET: boolean;
+  POST: boolean;
+  PUT: boolean;
+  PATCH: boolean;
+  DELETE: boolean;
+  Status: boolean;
+  Application: Application;
+}
+export interface ProxyLog extends Model {
+  ApplicationID: number;
+  APIID: number;
+  OldRequestMethod: string;
+  OldRequestURL: string;
+  OldRequestHeader: string;
+  OldRequestBody: string;
+  OldResponseHeader: string;
+  OldResponseBody: string;
+  OldResponseStatus: number;
+  NewResponseHeader: string;
+  NewResponseBody: string;
+  NewResponseStatus: number;
+  AnalysisResult: string;
+  Application: Application;
+  API: API;
 }
 
 
 export default (): React.ReactNode => {
   const actionRef = useRef<ActionType>();
-  const columns: ProColumns<TableListItem>[] = [
+  const columns: ProColumns<ProxyLog>[] = [
     {
       title: '应用程序',
-      dataIndex: 'name',
+      dataIndex: 'Application',
+      render: (_, record) => {
+        if (!record.Application) {
+          return "-";
+        }
+        return <>{record.Application.Name}</>
+      },
     },
     {
       title: '路由',
-      dataIndex: 'url',
+      dataIndex: 'API',
+      render: (_, record) => {
+        if (!record.API) {
+          return "-";
+        }
+        return <>{record.API.URL}</>
+      },
     },
     {
       title: '旧方法',
@@ -87,14 +126,14 @@ export default (): React.ReactNode => {
   ];
   return (
     <PageContainer pageHeaderRender={false}>
-      <ProTable<TableListItem>
+      <ProTable<ProxyLog>
         headerTitle="代理日志"
         actionRef={actionRef}
-        rowKey="key"
+        rowKey="ID"
         search={{
           labelWidth: 120,
         }}
-        request={(params, sorter, filter) => queryRule({ ...params, sorter, filter })}
+        request={(params, sorter, filter) => query({ ...params, sorter, filter })}
         columns={columns}
       />
     </PageContainer>

@@ -32,5 +32,21 @@ func Run() {
 		c.JSON(http.StatusOK, gin.H{"total": total, "data": list})
 	})
 
+	group.POST("/login/account", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"status":           "ok",
+			"type":             "account",
+			"currentAuthority": "admin",
+		})
+	})
+	group.GET("/currentUser", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"name":   "Admin",
+			"avatar": "https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png",
+			"userid": "00000001",
+			"email":  "wy27520@gmail.com",
+		})
+	})
+
 	g.Run(":8888")
 }
