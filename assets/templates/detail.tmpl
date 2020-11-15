@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+  <title>JSON Compare - Best JSON Diff Tools</title>
+  <link rel="stylesheet" href="/assets/compare_js/bootstrap.min.css">
+  <link rel="stylesheet" href="/assets/compare_js/reset.css" type="text/css" media="screen">
+  <link rel="stylesheet" href="/assets/compare_js/font-awesome.min.css">
+  <link rel="stylesheet" href="/assets/compare_js/extra_css.css">
+  <script type="text/javascript" src="/assets/compare_js/jquery.min.js"></script>
+  <link rel="stylesheet" href="/assets/compare_js/throbber.css" type="text/css" media="screen">
+  <link rel="stylesheet" href="/assets/compare_js/jdd.css" type="text/css" media="screen">
+</head>
+
+<body>
+  <div style="height:20px;margin:4px 0px 0px 4px;">ID：{{.proxyLog.ID}}</div>
+  <div style="height:20px;margin:4px 0px 0px 4px;">RestfulURL：{{if .proxyLog.API}}{{.proxyLog.API.URL}}{{end}}</div>
+  <div style="height:20px;margin:4px 0px 0px 4px;">
+    RequestURL：{{if .proxyLog.Application}}{{.proxyLog.Application.OldHost}}{{end}}{{.proxyLog.OldRequestURL}}</div>
+  <div class="container-fluid">
+    <div class="row initContainer" id="initco">
+      <div class="col-lg-5" id="rmsp">
+        <div class="left" id="left-editor">
+          <nav class="navbar navbar-light bg-light" style="display: flow-root;">
+            <a class="navbar-brand" href="javascript:void(0);" id="expand1" title="Format - Proper Indentation"
+              onclick="if (!window.__cfRLUnblockHandlers) return false; expand();">
+              <i class="fa fa-expand" aria-hidden="true"></i>
+            </a>
+            <a class="navbar-brand" href="javascript:void(0);" title="Compact - Remove WhiteSpaces"
+              onclick="if (!window.__cfRLUnblockHandlers) return false; collaps();">
+              <i class="fa fa-compress" aria-hidden="true"></i>
+            </a>
+            <a class="navbar-brand" href="javascript:void(0);" title="Download">
+              <i class="fa fa-download" aria-hidden="true"
+                onclick="if (!window.__cfRLUnblockHandlers) return false; downloadleft();"></i>
+            </a>
+            <a class="navbar-brand" href="javascript:void(0);" title="Copy">
+              <i class="fa fa-clipboard" aria-hidden="true" alt="Copy"
+                onclick="if (!window.__cfRLUnblockHandlers) return false; copyTextleft();"></i>
+            </a>
+            <a class="navbar-brand" href="javascript:void(0);" title="Clear">
+              <i class="fa fa-eraser" aria-hidden="true" alt="Clear"
+                onclick="if (!window.__cfRLUnblockHandlers) return false; eraseTextleft();"></i>
+            </a>
+            <a class="navbar-brand" href="javascript:void(0);" title="Undo">
+              <i class="fa fa-reply" aria-hidden="true" alt="Undo"
+                onclick="if (!window.__cfRLUnblockHandlers) return false; Undoleft();CopyTextDivText();"></i>
+
+            </a>
+            <a class="navbar-brand" href="javascript:void(0);" title="Redo">
+              <i class="fa fa-share" aria-hidden="true" alt="Redo"
+                onclick="if (!window.__cfRLUnblockHandlers) return false; Redoleft();CopyTextDivText();"></i>
+
+            </a>
+            <a class="navbar-brand" href="javascript:void(0);" title="Open File" style="float: right;"
+              onclick="if (!window.__cfRLUnblockHandlers) return false; document.getElementById(&#39;fileLeft&#39;).click(); return false">
+              <i class="fa fa-folder-open" aria-hidden="true" alt="Open"></i>
+            </a>
+            <a class="navbar-brand" href="javascript:void(0);" title="Try Sample" style="float: right;" id="sample">
+              <i class="fa fa-pencil-square-o" aria-hidden="true" alt="Sample"></i>
+            </a>
+            <input type="file" id="fileLeft" name="upload" style="visibility: hidden; width: 1px; height: 1px"
+              onchange="if (!window.__cfRLUnblockHandlers) return false; jdd.handleFiles(this.files, &#39;left&#39;)">
+          </nav>
+          <textarea class="form-control  rounded-0" rows="23" spellcheck="false" id="textarealeft"
+            placeholder="Enter JSON to compare, enter an URL to JSON"
+            style="height: 873px;">{{.proxyLog.OldResponseBody}}</textarea>
+          <pre id="errorLeft" class="error"></pre>
+        </div>
+      </div>
+      <div class="col-lg-2" id="">
+        <div class="center">
+          <div id="buttons_c" class="btnbtn">
+            <button id="compare" type="button" class="btn btn-outline-primary btn-primary btn-block">Compare</button>
+            <div class="throbber-loader"></div>
+            <br>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-5" id="rmsp">
+        <div class="right" id="right-editor">
+          <nav class="navbar navbar-light bg-light" style="display: flow-root;">
+            <a class="navbar-brand" href="javascript:void(0);" id="expand2" title="Format - Proper Indentation"
+              onclick="if (!window.__cfRLUnblockHandlers) return false; expandall();">
+              <i class="fa fa-expand" aria-hidden="true"></i>
+            </a>
+            <a class="navbar-brand" href="javascript:void(0);" title="Compact - Remove WhiteSpaces"
+              onclick="if (!window.__cfRLUnblockHandlers) return false; collapsall();">
+              <i class="fa fa-compress" aria-hidden="true"></i>
+            </a>
+            <a class="navbar-brand" href="javascript:void(0);" title="Download">
+              <i class="fa fa-download" aria-hidden="true"
+                onclick="if (!window.__cfRLUnblockHandlers) return false; downloadright();"></i>
+            </a>
+            <a class="navbar-brand" href="javascript:void(0);" title="Copy">
+              <i class="fa fa-clipboard" aria-hidden="true" alt="Copy"
+                onclick="if (!window.__cfRLUnblockHandlers) return false; copyTextright();"></i>
+            </a>
+            <a class="navbar-brand" href="javascript:void(0);" title="Clear">
+              <i class="fa fa-eraser" aria-hidden="true" alt="Clear"
+                onclick="if (!window.__cfRLUnblockHandlers) return false; eraseTextright();"></i>
+            </a>
+            <a class="navbar-brand" href="javascript:void(0);" title="Undo">
+              <i class="fa fa-reply" aria-hidden="true" alt="Undo"
+                onclick="if (!window.__cfRLUnblockHandlers) return false; Undoright();CopyTextDivText();"></i>
+            </a>
+            <a class="navbar-brand" href="javascript:void(0);" title="Redo">
+              <i class="fa fa-share" aria-hidden="true" alt="Redo"
+                onclick="if (!window.__cfRLUnblockHandlers) return false; Redoright();CopyTextDivText();"></i>
+            </a>
+            <a class="navbar-brand" href="javascript:void(0);" title="Open File" style="float: right;"
+              onclick="if (!window.__cfRLUnblockHandlers) return false; document.getElementById(&#39;fileRight&#39;).click(); return false">
+              <i class="fa fa-folder-open" aria-hidden="true" alt="Open"></i>
+            </a>
+            <a class="navbar-brand" href="javascript:void(0);" title="Try Sample" style="float: right;"
+              onclick="if (!window.__cfRLUnblockHandlers) return false; document.getElementById(&#39;sample&#39;).click(); return false">
+              <i class="fa fa-pencil-square-o" aria-hidden="true" alt="Sample"></i>
+            </a>
+            <input type="file" id="fileRight" name="upload" style="visibility: hidden; width: 1px; height: 1px"
+              onchange="if (!window.__cfRLUnblockHandlers) return false; jdd.handleFiles(this.files, &#39;right&#39;)">
+          </nav>
+          <textarea class="form-control rounded-0" rows="23" spellcheck="false" id="textarearight"
+            placeholder="Enter JSON to compare, enter an URL to JSON"
+            style="height: 873px;">{{.proxyLog.NewResponseBody}}</textarea>
+          <pre id="errorRight" class="error"></pre>
+        </div>
+      </div>
+    </div>
+    <div class="diffcontainer">
+      <div id="report">
+      </div>
+      <pre id="out" class="left codeBlock"></pre>
+      <pre id="out2" class="right codeBlock"></pre>
+      <ul id="toolbar" class="toolbar"></ul>
+    </div>
+  </div>
+
+
+  <script src="/assets/compare_js/jquery-3.2.1.slim.min.js" type="text/javascript"></script>
+
+  <script type="text/javascript">
+    $(function () {
+      $('#textarealeft').css({ 'height': (($(window).height()) - 168) + 'px' });
+
+      $(window).bind('resize', function () {
+        $('#textarealeft').css({ 'height': (($(window).height()) - 168) + 'px' });
+        // alert('resized');
+      });
+    });
+
+    $(function () {
+      $('#textarearight').css({ 'height': (($(window).height()) - 168) + 'px' });
+
+      $(window).bind('resize', function () {
+        $('#textarearight').css({ 'height': (($(window).height()) - 168) + 'px' });
+        // alert('resized');
+      });
+    });
+  </script>
+  <script src="/assets/compare_js/popper.min.js" type="text/javascript"></script>
+  <script src="/assets/compare_js/bootstrap.min.js" type="text/javascript"></script>
+
+  <script src="/assets/compare_js/jquery.min.js" type="text/javascript"></script>
+  <script src="/assets/compare_js/jsl.format.js" type="text/javascript"></script>
+  <script src="/assets/compare_js/jsl.parser.js" type="text/javascript"></script>
+  <script src="/assets/compare_js/jdd-compare.js" type="text/javascript"></script>
+  <script>
+    window.__cfRLUnblockHandlers = true;
+    $(function () {
+      $("#expand1").click();
+      $("#expand2").click();
+    })
+  </script>
+</body>
+
+</html>

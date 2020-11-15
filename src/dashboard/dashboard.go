@@ -15,6 +15,23 @@ func Run() {
 
 	g := gin.Default()
 	group := g.Group("/api")
+	g.Static("/assets", "./assets")
+	g.LoadHTMLGlob("./assets/templates/*")
+	g.GET("/proxylog/:id", func(c *gin.Context) {
+		proxyLog := &core.ProxyLog{}
+		if err := c.ShouldBindUri(proxyLog); err != nil {
+			c.String(http.StatusOK, err.Error())
+			return
+		}
+		err := service.GetProxyLog(proxyLog)
+		if err != nil {
+			c.String(http.StatusOK, err.Error())
+			return
+		}
+		c.HTML(http.StatusOK, "detail.tmpl", gin.H{
+			"proxyLog": proxyLog,
+		})
+	})
 
 	group.GET("/proxylog", func(c *gin.Context) {
 		pageParam := &model.PageParam{}

@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"strconv"
+	"strings"
 
 	"github.com/hellojqk/refactor/src/core"
 	"github.com/hellojqk/refactor/src/util"
@@ -17,6 +18,9 @@ func CreateAPP(appName string, oldHost string, newHost string) (err error) {
 		return
 	}
 	core.InitConn()
+
+	oldHost = strings.TrimRight(oldHost, "/")
+	newHost = strings.TrimRight(newHost, "/")
 
 	var app = &core.Application{
 		Name:    appName,

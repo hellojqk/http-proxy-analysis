@@ -18,6 +18,11 @@ func ListProxyLog(pageParam *model.PageParam) (result []core.ProxyLog, total int
 	if err != nil || total == 0 {
 		return
 	}
-	err = core.DB.Debug().Limit(pageParam.PageSize).Offset((pageParam.PageIndex - 1) * pageParam.PageSize).Preload("Application").Preload("API").Find(&result).Error
+	err = core.DB.Limit(pageParam.PageSize).Offset((pageParam.PageIndex - 1) * pageParam.PageSize).Preload("Application").Preload("API").Find(&result).Error
 	return
+}
+
+// GetProxyLog .
+func GetProxyLog(proxyLog *core.ProxyLog) error {
+	return core.DB.Preload("Application").Preload("API").First(proxyLog, proxyLog.ID).Error
 }

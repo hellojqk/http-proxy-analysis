@@ -1,0 +1,137 @@
+body {
+  font: normal 14px/1.5 Helvetica, 'Hiragino Sans GB', 'Microsoft Yahei', '微软雅黑', Arial, sans-serif;
+}
+
+.row-hover {
+  background-color: antiquewhite;
+}
+
+a {
+  text-decoration: none;
+  cursor         : pointer;
+  color          : #2FB77D;
+}
+
+.header {
+  display      : flex;
+  min-width    : 50px;
+  align-items  : center;
+  color        : #666;
+  font-size    : 14px;
+  font-weight  : bold;
+  height       : 30px;
+  background   : #f5f5f5;
+  border-radius: 2px 2px 0px 0px;
+  border       : 1px solid #e3e3e3;
+}
+
+.header-item {
+  height      : 100%;
+  border-right: 1px solid #e3e3e3;
+  display     : flex;
+  align-items : center;
+  padding     : 0px 4px;
+  box-sizing  : border-box;
+}
+
+.proxy-log-id {
+  width: 100px;
+}
+
+.proxy-key {
+  width: 100px;
+}
+
+.request-method {
+  width          : 60px;
+  justify-content: center;
+}
+
+.create-time {
+  width: 170px;
+}
+
+.restful-url {
+  width: 300px;
+}
+
+.mirror-response-status {
+  width          : 100px;
+  justify-content: center;
+}
+
+.analysis-result {
+  width          : 100px;
+  justify-content: center;
+}
+
+.analysis-result .danger {
+  color      : #ff7875;
+  font-weight: bold;
+  font-size  : 16px;
+}
+
+.operate {
+  width          : 120px;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+}
+
+.operate a {
+  color       : #4184e3;
+  margin-right: 4px;
+}
+
+.request-url {
+  width: 300px;
+}
+
+.request-body {
+  width          : 100px;
+  justify-content: center;
+}
+
+.request-header {
+  width: 100px;
+}
+
+.body {
+  border-left : 1px solid #e3e3e3;
+  border-right: 1px solid #e3e3e3;
+}
+
+.row {
+  display      : flex;
+  width        : 100%;
+  min-height   : 30px;
+  font-size    : 14px;
+  color        : #333;
+  border-bottom: 1px solid #e3e3e3;
+}
+
+.row .column {
+  border-right: 1px solid #e3e3e3;
+  display     : flex;
+  align-items : center;
+  padding     : 0px 10px;
+  box-sizing  : border-box;
+  overflow    : hidden;
+}
+
+.row-expand {
+  border          : 1px solid #e3e3e3;
+  min-height      : 100px;
+  padding         : 10px;
+  box-sizing      : border-box;
+  background-color: azure;
+  display         : none;
+}
+
+.row-expand-area {
+  border    : 1px solid #e3e3e3;
+  min-height: 20px;
+  width     : 100%;
+  padding   : 10px;
+  box-sizing: border-box;
+}

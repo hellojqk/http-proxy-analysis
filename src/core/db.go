@@ -12,7 +12,7 @@ import (
 
 // Model .
 type Model struct {
-	ID        uint      `gorm:"primarykey;AUTO_INSTREMENT;not null"`
+	ID        uint      `gorm:"primarykey;AUTO_INSTREMENT;not null" uri:"id"`
 	CreatedAt time.Time `gorm:"index"`
 	UpdatedAt time.Time `gorm:"index"`
 }
