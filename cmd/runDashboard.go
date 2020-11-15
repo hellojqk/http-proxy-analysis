@@ -16,28 +16,22 @@ limitations under the License.
 package cmd
 
 import (
+	"fmt"
+
 	"github.com/spf13/cobra"
 )
 
-// getCmd represents the get command
-var getCmd = &cobra.Command{
-	Use:   "get",
-	Short: "获取App或者Api",
-	Long:  `获取App或者Api`,
+// runDashboardCmd represents the runDashboard command
+var runDashboardCmd = &cobra.Command{
+	Use:     "dashboard",
+	Aliases: []string{"d"},
+	Short:   "运行代理日志汇总平台",
+	Long:    `运行代理日志汇总平台`,
 	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("runDashboard called")
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(getCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// getCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// getCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	runCmd.AddCommand(runDashboardCmd)
 }

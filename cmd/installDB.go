@@ -23,11 +23,12 @@ import (
 	"github.com/spf13/viper"
 )
 
-// initDBCmd represents the db command
-var initDBCmd = &cobra.Command{
-	Use:   "db",
-	Short: "初始化数据库",
-	Long:  `数据库初始化`,
+// installDBCmd represents the db command
+var installDBCmd = &cobra.Command{
+	Use:     "database",
+	Aliases: []string{"db"},
+	Short:   "初始化数据库",
+	Long:    `数据库初始化`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("db called")
 		core.InitTable()
@@ -35,22 +36,22 @@ var initDBCmd = &cobra.Command{
 }
 
 func init() {
-	initCmd.AddCommand(initDBCmd)
+	installCmd.AddCommand(installDBCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// initDBCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// installDBCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// initDBCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// installDBCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 
 	//配置连接字符串
-	initDBCmd.Flags().StringP("connectionString", "c", "", "数据库连接字符串")
+	installDBCmd.Flags().StringP("connectionString", "c", "", "数据库连接字符串")
 	//绑定到viper上
-	viper.BindPFlag("connectionString", initDBCmd.Flags().Lookup("connectionString"))
+	viper.BindPFlag("connectionString", installDBCmd.Flags().Lookup("connectionString"))
 
 	//三种配置方式
 	//第一种环境变量大写

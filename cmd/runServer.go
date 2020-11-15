@@ -21,26 +21,17 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// initCmd represents the init command
-var initCmd = &cobra.Command{
-	Use:   "init",
-	Short: "初始化",
-	Long:  `初始化`,
+// runServerCmd represents the runServer command
+var runServerCmd = &cobra.Command{
+	Use:     "server",
+	Aliases: []string{"s"},
+	Short:   "运行代理服务端",
+	Long:    `启动一个代理服务器`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("init called")
+		fmt.Println("runServer called")
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(initCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// dbCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// initCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	runCmd.AddCommand(runServerCmd)
 }
