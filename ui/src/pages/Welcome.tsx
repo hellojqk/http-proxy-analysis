@@ -12,8 +12,8 @@ const CodePreview: React.FC<{}> = ({ children }) => (
 );
 
 export default (): React.ReactNode => (
-  <PageContainer>
-    <Card>
+  <PageContainer pageHeaderRender={false}>
+    {/* <Card>
       <Alert
         message="更快更强的重型组件，已经发布。"
         type="success"
@@ -51,6 +51,6 @@ export default (): React.ReactNode => (
         </a>
       </Typography.Text>
       <CodePreview>yarn add @ant-design/pro-layout</CodePreview>
-    </Card>
+    </Card> */}
   </PageContainer>
 );

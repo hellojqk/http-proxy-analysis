@@ -17,6 +17,7 @@ export default defineConfig({
     locale: true,
     siderWidth: 208,
     ...defaultSettings,
+    collapsed: true, // 侧边栏最小化
   },
   locale: {
     // default zh-CN
