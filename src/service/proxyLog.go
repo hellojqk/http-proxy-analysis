@@ -18,7 +18,7 @@ func ListProxyLog(pageParam *model.PageParam) (result []core.ProxyLog, total int
 	if err != nil || total == 0 {
 		return
 	}
-	err = core.DB.Limit(pageParam.PageSize).Offset((pageParam.PageIndex - 1) * pageParam.PageSize).Preload("Application").Preload("API").Find(&result).Error
+	err = core.DB.Limit(pageParam.PageSize).Offset((pageParam.Current - 1) * pageParam.PageSize).Preload("Application").Preload("API").Find(&result).Error
 	return
 }
 

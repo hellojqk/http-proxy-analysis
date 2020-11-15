@@ -39,8 +39,8 @@ func Run() {
 		if pageParam.PageSize <= 0 {
 			pageParam.PageSize = 30
 		}
-		if pageParam.PageIndex <= 0 {
-			pageParam.PageIndex = 1
+		if pageParam.Current <= 0 {
+			pageParam.Current = 1
 		}
 		list, total, err := service.ListProxyLog(pageParam)
 		if err != nil {

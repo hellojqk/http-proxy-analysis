@@ -2,8 +2,11 @@ import React, { useRef, useState } from 'react';
 import { PageContainer } from '@ant-design/pro-layout';
 import { PlusOutlined } from '@ant-design/icons';
 import ProTable, { ActionType, ProColumns } from '@ant-design/pro-table';
-import { Button, Divider, Input } from 'antd';
+import { Button, Collapse, Divider, Input } from 'antd';
 import { query } from '../services/proxyLog';
+
+const { Panel } = Collapse;
+
 // import { Card, Alert, Typography } from 'antd';
 // import styles from './Welcome.less';
 
@@ -115,9 +118,7 @@ export default (): React.ReactNode => {
       valueType: 'option',
       render: (_, record) => (
         <>
-          <a href="">展开</a>
-          <Divider type="vertical" />
-          <a href="">对比</a>
+          <a href={`/proxy/${record.ID}`}>对比</a>
           <Divider type="vertical" />
           <a href="">重发</a>
         </>
@@ -135,6 +136,32 @@ export default (): React.ReactNode => {
         }}
         request={(params, sorter, filter) => query({ ...params, sorter, filter })}
         columns={columns}
+        expandable={{
+          rowExpandable: () => true,
+          expandedRowRender: record => <Collapse defaultActiveKey={['1', '2', '3', '4', '5', '6', '7']}>
+            <Panel header="请求路径" key="1">
+              <p>{record.OldRequestURL}</p>
+            </Panel>
+            <Panel header="请求头部信息" key="2">
+              <p>{record.OldRequestHeader}</p>
+            </Panel>
+            <Panel header="请求发送内容" key="3">
+              <p>{record.OldRequestBody}</p>
+            </Panel>
+            <Panel header={`旧应用返回头部信息，Status：${record.OldResponseStatus}`} key="4">
+              <p>{record.OldResponseHeader}</p>
+            </Panel>
+            <Panel header="旧应用返回头部信息" key="5">
+              <p>{record.OldResponseBody}</p>
+            </Panel>
+            <Panel header={`新应用返回头部信息，Status：${record.NewResponseStatus}`} key="6">
+              <p>{record.NewResponseHeader}</p>
+            </Panel>
+            <Panel header="新应用返回头部信息" key="7">
+              <p>{record.NewResponseBody}</p>
+            </Panel>
+          </Collapse>,
+        }}
       />
     </PageContainer>
   )
