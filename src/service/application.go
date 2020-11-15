@@ -49,3 +49,13 @@ func ListAPP() (result []core.Application) {
 	pterm.DefaultTable.WithHasHeader().WithData(dataLines).Render()
 	return
 }
+
+// GetAPP 获取应用信息
+func GetAPP(appName string) (*core.Application, error) {
+	var app = &core.Application{Name: appName}
+	err := core.DB.Where(&core.Application{Name: appName}).Preload("APIs").First(app).Error
+	if err != nil {
+		return nil, err
+	}
+	return app, nil
+}

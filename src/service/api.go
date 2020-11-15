@@ -44,6 +44,11 @@ func ImportSwaggerDoc(appName string, url string) {
 		log.Warn().Msg("cant find paths from swagger doc")
 		return
 	}
+	basePath := m["basePath"]
+	basePathStr := ""
+	if basePath != nil {
+		basePathStr = basePath.(string)
+	}
 	pathMap := paths.(map[string]interface{})
 
 	for path, pathItem := range pathMap {
@@ -53,7 +58,7 @@ func ImportSwaggerDoc(appName string, url string) {
 		}
 		methodMap := pathItem.(map[string]interface{})
 
-		api := core.API{ApplicationID: app.ID, URL: path}
+		api := core.API{ApplicationID: app.ID, URL: basePathStr + path}
 		err := core.DB.Where(&api).First(&api).Error
 		if err != nil && err != gorm.ErrRecordNotFound {
 			log.Err(err).Msg("find api error")

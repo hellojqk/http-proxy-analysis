@@ -24,6 +24,7 @@ type Application struct {
 	NewHost string `gorm:"type:varchar(255);default:'';not null"` //新应用地址
 	Status  bool   `gorm:"type:tinyint(1);default:0;not null"`    //状态，是否启用
 	Model
+	APIs []API
 }
 
 // API 接口地址
@@ -51,11 +52,11 @@ type ProxyLog struct {
 	OldRequestBody    string `gorm:"type:mediumtext;not null"`             //旧应用接口请求body
 	OldResponseHeader string `gorm:"type:text;not null"`                   //旧应用接口返回头
 	OldResponseBody   string `gorm:"type:mediumtext;not null"`             //旧应用接口返回body
-	OldResponseStatus uint16 `gorm:"default:0;not null;index"`             //旧应用接口返回状态
+	OldResponseStatus int    `gorm:"default:0;not null;index"`             //旧应用接口返回状态
 
 	NewResponseHeader string `gorm:"type:text;not null"`       //新应用接口返回头
 	NewResponseBody   string `gorm:"type:mediumtext;not null"` //新应用接口返回body
-	NewResponseStatus uint16 `gorm:"default:0;not null;index"` //新应用接口返回状态
+	NewResponseStatus int    `gorm:"default:0;not null;index"` //新应用接口返回状态
 
 	AnalysisResult string `gorm:"type:text;not null"` //初步分析结果
 	Model

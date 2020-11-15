@@ -16,10 +16,11 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
-
+	"github.com/hellojqk/refactor/src/server"
 	"github.com/spf13/cobra"
 )
+
+var serverName *string
 
 // runServerCmd represents the runServer command
 var runServerCmd = &cobra.Command{
@@ -28,10 +29,12 @@ var runServerCmd = &cobra.Command{
 	Short:   "运行代理服务端",
 	Long:    `启动一个代理服务器`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("runServer called")
+		server.Run(*serverName)
 	},
 }
 
 func init() {
 	runCmd.AddCommand(runServerCmd)
+	serverName = runServerCmd.Flags().StringP("appName", "a", "", "应用名称")
+	runServerCmd.MarkFlagRequired("appName")
 }

@@ -16,7 +16,7 @@ limitations under the License.
 package cmd
 
 import (
-	"github.com/hellojqk/refactor/src/server/service"
+	"github.com/hellojqk/refactor/src/service"
 	"github.com/spf13/cobra"
 )
 
