@@ -16,8 +16,7 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
-
+	"github.com/hellojqk/refactor/src/dashboard"
 	"github.com/spf13/cobra"
 )
 
@@ -28,7 +27,7 @@ var runDashboardCmd = &cobra.Command{
 	Short:   "运行代理日志汇总平台",
 	Long:    `运行代理日志汇总平台`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("runDashboard called")
+		dashboard.Run()
 	},
 }
 

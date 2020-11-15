@@ -24,7 +24,7 @@ type Application struct {
 	NewHost string `gorm:"type:varchar(255);default:'';not null"` //新应用地址
 	Status  bool   `gorm:"type:tinyint(1);default:0;not null"`    //状态，是否启用
 	Model
-	APIs []API
+	APIs []*API
 }
 
 // API 接口地址
@@ -39,7 +39,7 @@ type API struct {
 	Status        bool   `gorm:"type:tinyint(1);default:0;not null"`    //状态，是否启用
 	Model
 
-	Application Application
+	Application *Application
 }
 
 // ProxyLog 代理日志
@@ -60,6 +60,9 @@ type ProxyLog struct {
 
 	AnalysisResult string `gorm:"type:text;not null"` //初步分析结果
 	Model
+
+	Application *Application
+	API         *API
 }
 
 // DB .
