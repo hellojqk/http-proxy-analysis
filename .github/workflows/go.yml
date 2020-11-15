@@ -32,5 +32,11 @@ jobs:
     - name: Build
       run: go build -v -o ./bin/app .
 
+    - name: 'Upload Artifact'
+      uses: actions/upload-artifact@v2
+      with:
+        name: my-artifact
+        path: ./bin/app
+        retention-days: 1
 #     - name: Test
 #       run: go test -v .
