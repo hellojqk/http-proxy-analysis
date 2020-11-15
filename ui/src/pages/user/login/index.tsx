@@ -67,7 +67,7 @@ const Login: React.FC<{}> = () => {
     <div className={styles.container}>
       <div className={styles.lang}>{SelectLang && <SelectLang />}</div>
       <div className={styles.content}>
-        <div className={styles.top}>
+        {/* <div className={styles.top}>
           <div className={styles.header}>
             <Link to="/">
               <img alt="logo" className={styles.logo} src="/logo.svg" />
@@ -75,7 +75,7 @@ const Login: React.FC<{}> = () => {
             </Link>
           </div>
           <div className={styles.desc}>Ant Design 是西湖区最具影响力的 Web 设计规范</div>
-        </div>
+        </div> */}
 
         <div className={styles.main}>
           <ProForm
@@ -110,20 +110,20 @@ const Login: React.FC<{}> = () => {
                   defaultMessage: '账户密码登录',
                 })}
               />
-              <Tabs.TabPane
+              {/* <Tabs.TabPane
                 key="mobile"
                 tab={intl.formatMessage({
                   id: 'pages.login.phoneLogin.tab',
                   defaultMessage: '手机号登录',
                 })}
-              />
+              /> */}
             </Tabs>
 
             {status === 'error' && loginType === 'account' && (
               <LoginMessage
                 content={intl.formatMessage({
                   id: 'pages.login.accountLogin.errorMessage',
-                  defaultMessage: '账户或密码错误（admin/ant.design)',
+                  defaultMessage: '账户或密码错误（admin/admin)',
                 })}
               />
             )}
@@ -137,7 +137,7 @@ const Login: React.FC<{}> = () => {
                   }}
                   placeholder={intl.formatMessage({
                     id: 'pages.login.username.placeholder',
-                    defaultMessage: '用户名: admin or user',
+                    defaultMessage: '用户名: admin',
                   })}
                   rules={[
                     {
@@ -159,7 +159,7 @@ const Login: React.FC<{}> = () => {
                   }}
                   placeholder={intl.formatMessage({
                     id: 'pages.login.password.placeholder',
-                    defaultMessage: '密码: ant.design',
+                    defaultMessage: '密码: admin',
                   })}
                   rules={[
                     {
@@ -263,21 +263,21 @@ const Login: React.FC<{}> = () => {
               <ProFormCheckbox noStyle name="autoLogin">
                 <FormattedMessage id="pages.login.rememberMe" defaultMessage="自动登录" />
               </ProFormCheckbox>
-              <a
+              {/* <a
                 style={{
                   float: 'right',
                 }}
               >
                 <FormattedMessage id="pages.login.forgotPassword" defaultMessage="忘记密码" />
-              </a>
+              </a> */}
             </div>
           </ProForm>
-          <Space className={styles.other}>
+          {/* <Space className={styles.other}>
             <FormattedMessage id="pages.login.loginWith" defaultMessage="其他登录方式" />
             <AlipayCircleOutlined className={styles.icon} />
             <TaobaoCircleOutlined className={styles.icon} />
             <WeiboCircleOutlined className={styles.icon} />
-          </Space>
+          </Space> */}
         </div>
       </div>
       <Footer />
