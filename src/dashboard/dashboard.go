@@ -29,6 +29,7 @@ func Run() {
 	g := gin.Default()
 	group := g.Group("/api")
 	g.Static("/assets", "./assets")
+	g.Static("/ui", "./ui/dist")
 	g.LoadHTMLGlob("./assets/templates/*")
 	//查看详情
 	g.GET("/proxylog/:id", func(c *gin.Context) {

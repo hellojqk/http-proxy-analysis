@@ -12,6 +12,8 @@ export default defineConfig({
   dva: {
     hmr: true,
   },
+  base: "/ui/",
+  publicPath: "/ui/",
   layout: {
     name: 'Ant Design Pro',
     locale: true,
