@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/hellojqk/refactor/src/core"
@@ -17,6 +18,13 @@ var cli = http.Client{}
 // Run .
 func Run() {
 	core.InitConn()
+
+	go func() {
+		for {
+			service.Analysis()
+			time.Sleep(time.Second * 10)
+		}
+	}()
 
 	g := gin.Default()
 	group := g.Group("/api")
