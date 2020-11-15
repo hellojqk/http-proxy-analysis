@@ -2,6 +2,7 @@ package server
 
 import (
 	"bytes"
+	"compress/gzip"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -196,7 +197,19 @@ func logResponseBody(app *core.Application) gin.HandlerFunc {
 		}
 		proxyLog.OldResponseHeader = string(responseHeaderBts)
 
-		proxyLog.OldResponseBody = w.body.String()
+		// 判断返回信息是否压缩
+		contentEncoding := c.Writer.Header().Get("Content-Encoding")
+		switch strings.ToLower(contentEncoding) {
+		case "gzip":
+			reader, _ := gzip.NewReader(w.body)
+			if reader != nil {
+				readerBts, _ := ioutil.ReadAll(reader)
+				proxyLog.OldResponseBody = string(readerBts)
+			}
+		// todo 支持其他压缩算法
+		default:
+			proxyLog.OldResponseBody = w.body.String()
+		}
 
 		if app.NewHost != "" && c.Request.Method == "GET" {
 			newRequest, err := http.NewRequest(c.Request.Method, app.NewHost+c.Request.RequestURI, bytes.NewReader(requestData))
