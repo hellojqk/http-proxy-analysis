@@ -18,6 +18,7 @@ package cmd
 import (
 	"github.com/hellojqk/http-proxy-analysis/src/server"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var serverName *string
@@ -37,4 +38,9 @@ func init() {
 	runCmd.AddCommand(runServerCmd)
 	serverName = runServerCmd.Flags().StringP("appName", "a", "", "应用名称")
 	runServerCmd.MarkFlagRequired("appName")
+
+	//配置端口
+	runDashboardCmd.Flags().StringP("port", "p", "6666", "端口，默认：6666")
+	//配置端口
+	viper.BindPFlag("port", runDashboardCmd.Flags().Lookup("port"))
 }

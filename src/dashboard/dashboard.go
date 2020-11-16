@@ -2,6 +2,7 @@ package dashboard
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"strings"
@@ -11,6 +12,7 @@ import (
 	"github.com/hellojqk/http-proxy-analysis/src/core"
 	"github.com/hellojqk/http-proxy-analysis/src/model"
 	"github.com/hellojqk/http-proxy-analysis/src/service"
+	"github.com/spf13/viper"
 )
 
 var cli = http.Client{}
@@ -116,5 +118,5 @@ func Run() {
 		})
 	})
 
-	g.Run(":8888")
+	g.Run(fmt.Sprintf(":%d", viper.GetInt("port")))
 }

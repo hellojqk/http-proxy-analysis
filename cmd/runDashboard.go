@@ -18,6 +18,7 @@ package cmd
 import (
 	"github.com/hellojqk/http-proxy-analysis/src/dashboard"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // runDashboardCmd represents the runDashboard command
@@ -33,4 +34,9 @@ var runDashboardCmd = &cobra.Command{
 
 func init() {
 	runCmd.AddCommand(runDashboardCmd)
+
+	//配置端口
+	runDashboardCmd.Flags().StringP("port", "p", "9999", "端口，默认：9999")
+	//配置端口
+	viper.BindPFlag("port", runDashboardCmd.Flags().Lookup("port"))
 }

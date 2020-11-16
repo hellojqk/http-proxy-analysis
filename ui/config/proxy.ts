@@ -8,14 +8,14 @@
 export default {
   dev: {
     '/api/': {
-      target: 'http://localhost:8888',
+      target: 'http://localhost:9999',
       changeOrigin: true,
       pathRewrite: { '^': '' },
     },
   },
   test: {
     '/api/': {
-      target: 'http://localhost:8888',
+      target: 'http://localhost:9999',
       changeOrigin: true,
       pathRewrite: { '^': '' },
     },

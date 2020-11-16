@@ -16,6 +16,7 @@ import (
 	"github.com/hellojqk/http-proxy-analysis/src/service"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
+	"github.com/spf13/viper"
 )
 
 type responseBodyWriter struct {
@@ -64,7 +65,8 @@ func Run(appName string) {
 		proxy.ServeHTTP(c.Writer, c.Request)
 	}
 	g.Any("/*action", handlerFunc)
-	g.Run(fmt.Sprintf(":%d", 8888))
+
+	g.Run(fmt.Sprintf(":%d", viper.GetInt("port")))
 }
 
 // parseAry 将url转换成数组 /a/b/c ["a","b","c"]
