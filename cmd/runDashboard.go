@@ -36,7 +36,7 @@ func init() {
 	runCmd.AddCommand(runDashboardCmd)
 
 	//配置端口
-	runDashboardCmd.Flags().StringP("port", "p", "9999", "端口，默认：9999")
+	runDashboardCmd.Flags().StringP("dashboardPort", "p", "9999", "端口，默认：9999")
 	//配置端口
-	viper.BindPFlag("port", runDashboardCmd.Flags().Lookup("port"))
+	viper.BindPFlag("dashboardPort", runDashboardCmd.Flags().Lookup("dashboardPort"))
 }

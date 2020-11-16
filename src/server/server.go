@@ -66,7 +66,7 @@ func Run(appName string) {
 	}
 	g.Any("/*action", handlerFunc)
 
-	g.Run(fmt.Sprintf(":%d", viper.GetInt("port")))
+	g.Run(fmt.Sprintf(":%d", viper.GetInt("serverPort")))
 }
 
 // parseAry 将url转换成数组 /a/b/c ["a","b","c"]

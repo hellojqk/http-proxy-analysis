@@ -40,7 +40,7 @@ func init() {
 	runServerCmd.MarkFlagRequired("appName")
 
 	//配置端口
-	runServerCmd.Flags().StringP("port", "p", "6666", "端口，默认：6666")
+	runServerCmd.Flags().StringP("serverPort", "p", "6666", "端口，默认：6666")
 	//配置端口
-	viper.BindPFlag("port", runServerCmd.Flags().Lookup("port"))
+	viper.BindPFlag("serverPort", runServerCmd.Flags().Lookup("serverPort"))
 }

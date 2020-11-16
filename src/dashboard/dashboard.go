@@ -118,5 +118,5 @@ func Run() {
 		})
 	})
 
-	g.Run(fmt.Sprintf(":%d", viper.GetInt("port")))
+	g.Run(fmt.Sprintf(":%d", viper.GetInt("dashboardPort")))
 }
