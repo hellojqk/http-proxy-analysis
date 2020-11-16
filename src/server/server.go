@@ -10,6 +10,7 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/hellojqk/http-proxy-analysis/src/core"
@@ -187,7 +188,9 @@ func logResponseBody(app *core.Application) gin.HandlerFunc {
 		}
 		proxyLog.OldRequestHeader = string(requestHeaderBts)
 
+		oldBeginTime := time.Now().Unix()
 		c.Next()
+		proxyLog.OldDuration = time.Now().Unix() - oldBeginTime
 
 		proxyLog.OldResponseStatus = c.Writer.Status()
 
@@ -224,12 +227,14 @@ func logResponseBody(app *core.Application) gin.HandlerFunc {
 				log.Err(err).Msg("http.NewRequest")
 			}
 			newRequest.Header = c.Request.Header
+			newBeginTime := time.Now().Unix()
 			//发送镜像请求
 			newResponse, err := cli.Do(newRequest)
 			if err != nil {
 				log.Err(err).Msg("cli.Do(newRequest)")
 			}
 			if newResponse != nil {
+				proxyLog.NewDuration = time.Now().Unix() - newBeginTime
 				proxyLog.NewResponseStatus = newResponse.StatusCode
 				newResponseHeaderBts, err := json.Marshal(newResponse.Header)
 				proxyLog.NewResponseHeader = string(newResponseHeaderBts)

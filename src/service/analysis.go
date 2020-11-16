@@ -48,7 +48,7 @@ func Analysis() {
 			}
 			diffResultBts, _ := json.Marshal(saveResult)
 			// fmt.Printf("diffResultBts:%d\n%s\n", proxyLog.ProxyLogID, diffResultBts)
-			core.DB.Model(&core.ProxyLog{}).Where(&core.ProxyLog{Model: core.Model{ID: proxyLog.ID}}).UpdateColumn("analysis_result", string(diffResultBts))
+			core.DB.Model(&core.ProxyLog{}).Where(&core.ProxyLog{Model: core.Model{ID: proxyLog.ID}}).UpdateColumns(map[string]interface{}{"analysis_result": string(diffResultBts), "analysis_diff_count": len(diffResult)})
 		}
 		pageIndex++
 	}

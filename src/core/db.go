@@ -69,12 +69,15 @@ type ProxyLog struct {
 	OldResponseHeader string `gorm:"type:text;not null"`                   //旧应用接口返回头
 	OldResponseBody   string `gorm:"type:mediumtext;not null"`             //旧应用接口返回body
 	OldResponseStatus int    `gorm:"default:0;not null;index"`             //旧应用接口返回状态
+	OldDuration       int64  `gorm:"default:0;not null;"`                  //旧应用接口执行时间
 
 	NewResponseHeader string `gorm:"type:text;not null"`       //新应用接口返回头
 	NewResponseBody   string `gorm:"type:mediumtext;not null"` //新应用接口返回body
 	NewResponseStatus int    `gorm:"default:0;not null;index"` //新应用接口返回状态
+	NewDuration       int64  `gorm:"default:0;not null;"`      //新应用接口持续时间
 
-	AnalysisResult string `gorm:"type:text;not null"` //初步分析结果
+	AnalysisResult    string `gorm:"type:text;not null"`  //初步分析结果
+	AnalysisDiffCount int    `gorm:"default:0;not null;"` //初步分析不同数量
 	Model
 
 	Application *Application
@@ -122,13 +125,18 @@ func InitTable() {
 	if err != nil {
 		panic(errors.Wrap(err, "db AutoMigrate error"))
 	}
+
 	// proxy_log表不允许创建外键约束
-	err = db.Migrator().DropConstraint(&ProxyLog{}, "fk_hpa_proxy_log_api")
-	if err != nil {
-		panic(errors.Wrap(err, "db AutoMigrate error"))
+	if (db.Migrator().HasConstraint(&ProxyLog{}, "fk_hpa_proxy_log_api")) {
+		err = db.Migrator().DropConstraint(&ProxyLog{}, "fk_hpa_proxy_log_api")
+		if err != nil {
+			panic(errors.Wrap(err, "db AutoMigrate error"))
+		}
 	}
-	err = db.Migrator().DropConstraint(&ProxyLog{}, "fk_hpa_proxy_log_application")
-	if err != nil {
-		panic(errors.Wrap(err, "db AutoMigrate error"))
+	if (db.Migrator().HasConstraint(&ProxyLog{}, "fk_hpa_proxy_log_application")) {
+		err = db.Migrator().DropConstraint(&ProxyLog{}, "fk_hpa_proxy_log_application")
+		if err != nil {
+			panic(errors.Wrap(err, "db AutoMigrate error"))
+		}
 	}
 }
