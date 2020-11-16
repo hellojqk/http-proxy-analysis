@@ -26,7 +26,7 @@ var getAPICmd = &cobra.Command{
 	Short: "获取API列表",
 	Long:  `获取API列表`,
 	Run: func(cmd *cobra.Command, args []string) {
-		service.ListAPI()
+		service.TermShowAPI()
 	},
 }
 

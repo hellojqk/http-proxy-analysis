@@ -64,8 +64,13 @@ export default (): React.ReactNode => {
   const actionRef = useRef<ActionType>();
   const columns: ProColumns<ProxyLog>[] = [
     {
+      title: '编号',
+      dataIndex: 'ID',
+      search: false,
+    },
+    {
       title: '应用程序',
-      dataIndex: 'Application',
+      dataIndex: 'Name',
       render: (_, record) => {
         if (!record.Application) {
           return "-";
@@ -75,7 +80,7 @@ export default (): React.ReactNode => {
     },
     {
       title: '路由',
-      dataIndex: 'API',
+      dataIndex: 'URL',
       render: (_, record) => {
         if (!record.API) {
           return "-";
@@ -88,11 +93,7 @@ export default (): React.ReactNode => {
       dataIndex: 'OldRequestMethod',
       tooltip: '接口请求类型'
     },
-    {
-      title: '旧Url',
-      dataIndex: 'OldRequestURL',
-      tooltip: '接口请求路径'
-    },
+
     {
       title: '旧状态',
       dataIndex: 'OldResponseStatus',
@@ -106,6 +107,7 @@ export default (): React.ReactNode => {
     {
       title: '分析结果',
       dataIndex: 'AnalysisResult',
+      search: false,
       tooltip: '后端服务初步分析的结果差异，详细差异见对比操作',
       render: (_, record) => {
         if (!record.AnalysisResult) {
@@ -118,12 +120,20 @@ export default (): React.ReactNode => {
     {
       title: '创建时间',
       dataIndex: 'CreatedAt',
+      search: false,
       valueType: 'dateTime'
+    },
+    {
+      title: '旧Url',
+      dataIndex: 'OldRequestURL',
+      tooltip: '接口请求路径'
     },
     {
       title: '操作',
       dataIndex: 'option',
       valueType: 'option',
+      fixed: 'right',
+      width: 100,
       render: (_, record) => (
         <>
           <a href={`/proxylog/${record.ID}`}>对比</a>
@@ -146,6 +156,7 @@ export default (): React.ReactNode => {
     <PageContainer pageHeaderRender={false}>
       <ProTable<ProxyLog>
         headerTitle="代理日志"
+        scroll={{ x: 2000 }}
         actionRef={actionRef}
         rowKey="ID"
         search={{

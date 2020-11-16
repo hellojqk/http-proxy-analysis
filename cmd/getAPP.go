@@ -26,7 +26,7 @@ var getAPPCmd = &cobra.Command{
 	Short: "获取应用列表",
 	Long:  `获取应用列表`,
 	Run: func(cmd *cobra.Command, args []string) {
-		service.ListAPP()
+		service.TermShowListAPP()
 	},
 }
 

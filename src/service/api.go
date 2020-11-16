@@ -104,8 +104,8 @@ func ImportSwaggerDoc(appName string, url string) {
 
 var apiHeader = []string{"APP_NAME", "URL", "GET", "POST", "PUT", "PATCH", "DELETE", "Status", "CreatedAt"}
 
-// ListAPI 获取API列表
-func ListAPI() (result []core.API) {
+// TermShowAPI 获取API列表
+func TermShowAPI() (result []core.API) {
 	core.InitConn()
 	result = make([]core.API, 0, 1)
 	err := core.DB.Preload("Application").Find(&result).Error
@@ -121,5 +121,16 @@ func ListAPI() (result []core.API) {
 	}
 
 	pterm.DefaultTable.WithHasHeader().WithData(dataLines).Render()
+	return
+}
+
+// ListAPI 获取API列表
+func ListAPI(applicationID uint) (result []core.API) {
+	result = make([]core.API, 0, 1)
+	err := core.DB.Where(&core.API{ApplicationID: applicationID}).Find(&result).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		log.Err(err).Msg("list app")
+		return
+	}
 	return
 }

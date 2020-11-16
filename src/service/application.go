@@ -9,6 +9,7 @@ import (
 	"github.com/hellojqk/http-proxy-analysis/src/util"
 	"github.com/pterm/pterm"
 	"github.com/rs/zerolog/log"
+	"gorm.io/gorm"
 )
 
 // CreateAPP 创建应用
@@ -34,8 +35,8 @@ func CreateAPP(appName string, oldHost string, newHost string) (err error) {
 
 var appHeader = []string{"APP_NAME", "OLD_HOST", "NEW_HOST", "STATUS", "CREATE_TIME"}
 
-// ListAPP 获取应用列表
-func ListAPP() (result []core.Application) {
+// TermShowListAPP 获取应用列表
+func TermShowListAPP() (result []core.Application) {
 	core.InitConn()
 	result = make([]core.Application, 0, 1)
 	err := core.DB.Find(&result).Error
@@ -51,6 +52,21 @@ func ListAPP() (result []core.Application) {
 	}
 
 	pterm.DefaultTable.WithHasHeader().WithData(dataLines).Render()
+	return
+}
+
+// ListAPP .
+func ListAPP(containAPIInfo bool) (result []core.Application, err error) {
+	result = make([]core.Application, 0, 1)
+	db := core.DB
+	if containAPIInfo {
+		db = db.Preload("APIs")
+	}
+	err = db.Find(&result).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		log.Err(err).Msg("list app")
+		return
+	}
 	return
 }
 

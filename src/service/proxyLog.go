@@ -12,13 +12,13 @@ func InsertProwyLog(proxyLog *core.ProxyLog) (bool, error) {
 }
 
 // ListProxyLog .
-func ListProxyLog(pageParam *model.PageParam) (result []core.ProxyLog, total int64, err error) {
+func ListProxyLog(pageParam *model.ProxyLogListRequestParam) (result []core.ProxyLog, total int64, err error) {
 	result = make([]core.ProxyLog, 0)
-	err = core.DB.Model(&core.ProxyLog{}).Count(&total).Error
+	err = core.DB.Model(&core.ProxyLog{}).Where(pageParam.ProxyLog).Count(&total).Error
 	if err != nil || total == 0 {
 		return
 	}
-	err = core.DB.Limit(pageParam.PageSize).Offset((pageParam.Current - 1) * pageParam.PageSize).Preload("Application").Preload("API").Find(&result).Error
+	err = core.DB.Limit(pageParam.PageSize).Where(pageParam.ProxyLog).Offset((pageParam.Current - 1) * pageParam.PageSize).Preload("Application").Preload("API").Order("id desc").Find(&result).Error
 	return
 }
 

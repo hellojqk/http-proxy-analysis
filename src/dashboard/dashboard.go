@@ -52,15 +52,15 @@ func Run() {
 
 	//获取代理日志分页数据
 	group.GET("/proxylog", func(c *gin.Context) {
-		pageParam := &model.PageParam{}
-		c.BindQuery(pageParam)
-		if pageParam.PageSize <= 0 {
-			pageParam.PageSize = 30
+		param := &model.ProxyLogListRequestParam{}
+		c.BindQuery(param)
+		if param.PageSize <= 0 {
+			param.PageSize = 30
 		}
-		if pageParam.Current <= 0 {
-			pageParam.Current = 1
+		if param.Current <= 0 {
+			param.Current = 1
 		}
-		list, total, err := service.ListProxyLog(pageParam)
+		list, total, err := service.ListProxyLog(param)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		}
@@ -101,6 +101,24 @@ func Run() {
 		}
 		c.JSON(http.StatusOK, gin.H{})
 	})
+
+	//获取应用程序数据
+	group.GET("/application", func(c *gin.Context) {
+		list, err := service.ListAPP(true)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		}
+		c.JSON(http.StatusOK, list)
+	})
+
+	// //获取应用程序API数据
+	// group.GET("/application/:id/api", func(c *gin.Context) {
+	// 	list, err := service.ListAPI()
+	// 	if err != nil {
+	// 		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+	// 	}
+	// 	c.JSON(http.StatusOK, list)
+	// })
 
 	group.POST("/login/account", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
