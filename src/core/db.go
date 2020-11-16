@@ -117,7 +117,17 @@ func InitTable() {
 	db := DB.Debug()
 	// db.Migrator().DropTable(&Application{}, &API{}, &ProxyLog{})
 
-	err := db.Migrator().AutoMigrate(&Application{}, &API{}, &ProxyLog{})
+	var err error
+	err = db.Migrator().AutoMigrate(&Application{}, &API{}, &ProxyLog{})
+	if err != nil {
+		panic(errors.Wrap(err, "db AutoMigrate error"))
+	}
+	// proxy_log表不允许创建外键约束
+	err = db.Migrator().DropConstraint(&ProxyLog{}, "fk_hpa_proxy_log_api")
+	if err != nil {
+		panic(errors.Wrap(err, "db AutoMigrate error"))
+	}
+	err = db.Migrator().DropConstraint(&ProxyLog{}, "fk_hpa_proxy_log_application")
 	if err != nil {
 		panic(errors.Wrap(err, "db AutoMigrate error"))
 	}
