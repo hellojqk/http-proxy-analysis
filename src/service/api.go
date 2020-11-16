@@ -64,18 +64,31 @@ func ImportSwaggerDoc(appName string, url string) {
 			log.Err(err).Msg("find api error")
 			continue
 		}
-		for method := range methodMap {
+		for method, methodDetail := range methodMap {
+			summary := ""
+			methodDetailMap := methodDetail.(map[string]interface{})
+			if methodDetailMap != nil && methodDetailMap["summary"] != nil {
+				summary = methodDetailMap["summary"].(string)
+			}
 			switch strings.ToLower(method) {
 			case "get":
 				api.GET = true
+				api.GETSummary = summary
+				if api.ID == 0 {
+					api.GETAllowMirror = true
+				}
 			case "post":
 				api.POST = true
+				api.POSTSummary = summary
 			case "put":
 				api.PUT = true
+				api.PUTSummary = summary
 			case "patch":
 				api.PATCH = true
+				api.PATCHSummary = summary
 			case "delete":
 				api.DELETE = true
+				api.DELETESummary = summary
 			}
 		}
 		if api.ID == 0 {

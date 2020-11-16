@@ -31,12 +31,28 @@ type Application struct {
 type API struct {
 	ApplicationID uint   `gorm:"default:0;not null;index"`              //应用程序ID
 	URL           string `gorm:"type:varchar(255);default:'';not null"` //接口地址
-	GET           bool   `gorm:"type:tinyint(1);default:0;not null"`    //是否代理此类请求
-	POST          bool   `gorm:"type:tinyint(1);default:0;not null"`    //是否代理此类请求
-	PUT           bool   `gorm:"type:tinyint(1);default:0;not null"`    //是否代理此类请求
-	PATCH         bool   `gorm:"type:tinyint(1);default:0;not null"`    //是否代理此类请求
-	DELETE        bool   `gorm:"type:tinyint(1);default:0;not null"`    //是否代理此类请求
-	Status        bool   `gorm:"type:tinyint(1);default:0;not null"`    //状态，是否启用
+
+	GET            bool   `gorm:"type:tinyint(1);default:0;not null"`    //是否有对应方法
+	GETSummary     string `gorm:"type:varchar(255);default:'';not null"` //对应方法接口描述
+	GETAllowMirror bool   `gorm:"type:tinyint(1);default:1;not null"`    //是否允许镜像流量
+
+	POST            bool   `gorm:"type:tinyint(1);default:0;not null"`    //是否有对应方法
+	POSTSummary     string `gorm:"type:varchar(255);default:'';not null"` //对应方法接口描述
+	POSTAllowMirror bool   `gorm:"type:tinyint(1);default:0;not null"`    //是否允许镜像流量
+
+	PUT            bool   `gorm:"type:tinyint(1);default:0;not null"`    //是否有对应方法
+	PUTSummary     string `gorm:"type:varchar(255);default:'';not null"` //对应方法接口描述
+	PUTAllowMirror bool   `gorm:"type:tinyint(1);default:0;not null"`    //是否允许镜像流量
+
+	PATCH            bool   `gorm:"type:tinyint(1);default:0;not null"`    //是否有对应方法
+	PATCHSummary     string `gorm:"type:varchar(255);default:'';not null"` //对应方法接口描述
+	PATCHAllowMirror bool   `gorm:"type:tinyint(1);default:0;not null"`    //是否允许镜像流量
+
+	DELETE            bool   `gorm:"type:tinyint(1);default:0;not null"`    //是否有对应方法
+	DELETESummary     string `gorm:"type:varchar(255);default:'';not null"` //对应方法接口描述
+	DELETEAllowMirror bool   `gorm:"type:tinyint(1);default:0;not null"`    //是否允许镜像流量
+
+	Status bool `gorm:"type:tinyint(1);default:0;not null"` //状态，是否启用
 	Model
 
 	Application *Application
