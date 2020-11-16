@@ -68,13 +68,13 @@ func ImportSwaggerDoc(appName string, url string) {
 			switch strings.ToLower(method) {
 			case "get":
 				api.GET = true
-			case "POST":
+			case "post":
 				api.POST = true
-			case "PUT":
+			case "put":
 				api.PUT = true
-			case "PATCH":
+			case "patch":
 				api.PATCH = true
-			case "DELETE":
+			case "delete":
 				api.DELETE = true
 			}
 		}
