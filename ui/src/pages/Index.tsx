@@ -8,7 +8,7 @@ import { query, retry } from '../services/proxyLog';
 const { Panel } = Collapse;
 
 // import { Card, Alert, Typography } from 'antd';
-// import styles from './Welcome.less';
+// import styles from './Index.less';
 
 // const CodePreview: React.FC<{}> = ({ children }) => (
 //   <pre className={styles.pre}>
@@ -106,7 +106,14 @@ export default (): React.ReactNode => {
     {
       title: '分析结果',
       dataIndex: 'AnalysisResult',
-      tooltip: '后端服务初步分析的结果差异，详细差异见对比操作'
+      tooltip: '后端服务初步分析的结果差异，详细差异见对比操作',
+      render: (_, record) => {
+        if (!record.AnalysisResult) {
+          return <>0</>
+        }
+        const analysisResult = JSON.parse(record.AnalysisResult)
+        return <>{analysisResult.length}</>
+      },
     },
     {
       title: '创建时间',
@@ -119,7 +126,7 @@ export default (): React.ReactNode => {
       valueType: 'option',
       render: (_, record) => (
         <>
-          <a href={`/proxy/${record.ID}`}>对比</a>
+          <a href={`/proxylog/${record.ID}`}>对比</a>
           <Divider type="vertical" />
           <a onClick={async () => {
             try {

@@ -11,10 +11,10 @@
     ],
   },
   {
-    path: '/welcome',
-    name: 'welcome',
+    path: '/index',
+    name: 'index',
     icon: 'smile',
-    component: './Welcome',
+    component: './Index',
   },
   // {
   //   path: '/admin',
@@ -27,7 +27,7 @@
   //       path: '/admin/sub-page',
   //       name: 'sub-page',
   //       icon: 'smile',
-  //       component: './Welcome',
+  //       component: './Index',
   //     },
   //   ],
   // },
@@ -39,7 +39,7 @@
   // },
   {
     path: '/',
-    redirect: '/welcome',
+    redirect: '/index',
   },
   {
     component: './404',
