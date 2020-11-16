@@ -12,8 +12,8 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hellojqk/refactor/src/core"
-	"github.com/hellojqk/refactor/src/service"
+	"github.com/hellojqk/proxy-log/src/core"
+	"github.com/hellojqk/proxy-log/src/service"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
 )

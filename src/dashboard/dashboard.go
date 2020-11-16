@@ -8,9 +8,9 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hellojqk/refactor/src/core"
-	"github.com/hellojqk/refactor/src/model"
-	"github.com/hellojqk/refactor/src/service"
+	"github.com/hellojqk/proxy-log/src/core"
+	"github.com/hellojqk/proxy-log/src/model"
+	"github.com/hellojqk/proxy-log/src/service"
 )
 
 var cli = http.Client{}

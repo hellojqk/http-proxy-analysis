@@ -1,4 +1,4 @@
-module github.com/hellojqk/refactor
+module github.com/hellojqk/proxy-log
 
 go 1.15
 

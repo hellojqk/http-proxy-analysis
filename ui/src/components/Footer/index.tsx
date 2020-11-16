@@ -16,7 +16,7 @@ export default () => (
       {
         key: 'github',
         title: <GithubOutlined />,
-        href: 'https://github.com/hellojqk/refactor',
+        href: 'https://github.com/hellojqk/proxy-log',
         blankTarget: true,
       },
       // {

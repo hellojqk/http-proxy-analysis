@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/hellojqk/jsondiff"
-	"github.com/hellojqk/refactor/src/core"
+	"github.com/hellojqk/proxy-log/src/core"
 	"github.com/rs/zerolog/log"
 )
 

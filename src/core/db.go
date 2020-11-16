@@ -77,7 +77,7 @@ func InitConn() {
 	var err error
 	DB, err = gorm.Open(mysql.New(mysql.Config{DSN: connectionStr}), &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
-			TablePrefix:   "refactor_",
+			TablePrefix:   "proxy-log_",
 			SingularTable: true, // 使用单数表名
 		},
 	})

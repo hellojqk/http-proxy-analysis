@@ -7,8 +7,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/hellojqk/refactor/src/core"
-	"github.com/hellojqk/refactor/src/util"
+	"github.com/hellojqk/proxy-log/src/core"
+	"github.com/hellojqk/proxy-log/src/util"
 	"github.com/pterm/pterm"
 	"github.com/rs/zerolog/log"
 	"gorm.io/gorm"

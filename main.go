@@ -15,7 +15,7 @@ limitations under the License.
 */
 package main
 
-import "github.com/hellojqk/refactor/cmd"
+import "github.com/hellojqk/proxy-log/cmd"
 
 func main() {
 	cmd.Execute()
