@@ -1,11 +1,16 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { PageContainer } from '@ant-design/pro-layout';
 import { PlusOutlined } from '@ant-design/icons';
 import ProTable, { ActionType, ProColumns } from '@ant-design/pro-table';
-import { Button, Collapse, Divider, Input, message } from 'antd';
-import { query, retry } from '../services/proxyLog';
+import { Button, Collapse, Divider, Input, message, Select } from 'antd';
+import { queryProxyLog, retryProxyLog } from '../services/proxyLog';
+
+import { queryApplication } from "../services/application"
+import { SelectProps } from 'antd/lib/select';
 
 const { Panel } = Collapse;
+
+const { Option } = Select;
 
 // import { Card, Alert, Typography } from 'antd';
 // import styles from './Index.less';
@@ -34,10 +39,15 @@ export interface API extends Model {
   ApplicationID: number;
   URL: string;
   GET: boolean;
+  GETSummary: string;
   POST: boolean;
+  POSTSummary: string;
   PUT: boolean;
+  PUTSummary: string;
   PATCH: boolean;
+  PATCHSummary: string;
   DELETE: boolean;
+  DELETESummary: string;
   Status: boolean;
   Application: Application;
 }
@@ -59,9 +69,57 @@ export interface ProxyLog extends Model {
   API: API;
 }
 
+const ApplicationSelect = (props: any) => {
+  const [applicationList, setApplicationList] = useState<Application[]>([])
+  useEffect(() => {
+    if (!applicationList || applicationList.length == 0) {
+      queryApplication().then(result => {
+        if (result) {
+          setApplicationList(result)
+        }
+      })
+    }
+  }, [])
+  return <Select {...props} filterOption={(input, option: { label: string }) => {
+    return option && option.label && option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
+  }} showSearch={true} options={applicationList.map((f: Application) => { return { label: f.Name, value: f.ID } })}></Select>
+}
+
+const ApiSelect = (props: any) => {
+  const { form } = props
+  const [applicationList, setApplicationList] = useState<Application[]>([])
+  useEffect(() => {
+    if (!applicationList || applicationList.length == 0) {
+      queryApplication().then(result => {
+        if (result) {
+          setApplicationList(result)
+        }
+      })
+    }
+  }, [])
+  let apiList: {}[] = [];
+  const applicationID = form.getFieldValue("ApplicationID")
+  if (applicationID && applicationList) {
+    applicationList.forEach((app: Application) => {
+      if (app.ID == applicationID && app.APIs) {
+        app.APIs.forEach(api => {
+          api.GET && apiList.push({ value: api.ID, label: "GET " + api.URL + " " + api.GETSummary })
+          api.POST && apiList.push({ value: api.ID, label: "POST " + api.URL + " " + api.POSTSummary })
+          api.PUT && apiList.push({ value: api.ID, label: "PUT " + api.URL + " " + api.PUTSummary })
+          api.PATCH && apiList.push({ value: api.ID, label: "PATCH " + api.URL + " " + api.PATCHSummary })
+          api.DELETE && apiList.push({ value: api.ID, label: "DELETE " + api.URL + " " + api.DELETESummary })
+        })
+      }
+    })
+  }
+  return <Select {...props} filterOption={(input, option: { label: string }) => {
+    return option && option.label && option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
+  }} showSearch={true} options={apiList}></Select>
+}
 
 export default (): React.ReactNode => {
   const actionRef = useRef<ActionType>();
+
   const columns: ProColumns<ProxyLog>[] = [
     {
       title: '编号',
@@ -70,42 +128,60 @@ export default (): React.ReactNode => {
     },
     {
       title: '应用程序',
-      dataIndex: 'Name',
+      dataIndex: 'ApplicationID',
+      width: 200,
       render: (_, record) => {
         if (!record.Application) {
           return "-";
         }
         return <>{record.Application.Name}</>
       },
+      renderFormItem: (item, config, form) => {
+        return <ApplicationSelect {...config}></ApplicationSelect>
+      }
     },
     {
       title: '路由',
-      dataIndex: 'URL',
+      dataIndex: 'APIID',
       render: (_, record) => {
         if (!record.API) {
           return "-";
         }
         return <>{record.API.URL}</>
       },
+      renderFormItem: (item, config, form) => {
+        return <ApiSelect {...config} form={form}></ApiSelect>
+      }
     },
     {
       title: '旧方法',
+      width: 100,
       dataIndex: 'OldRequestMethod',
-      tooltip: '接口请求类型'
+      tooltip: '接口请求类型',
+      valueEnum: {
+        GET: { text: 'GET' },
+        POST: { text: 'POST' },
+        PUT: { text: 'PUT' },
+        PATCH: { text: 'PATCH' },
+        DELETE: { text: 'DELETE' },
+      }
     },
 
     {
       title: '旧状态',
+      width: 100,
       dataIndex: 'OldResponseStatus',
       tooltip: '旧接口返回HTTP状态码'
     },
     {
       title: '新状态',
+      width: 100,
       dataIndex: 'NewResponseStatus',
       tooltip: '新接口返回HTTP状态码'
     },
     {
       title: '分析结果',
+      width: 120,
       dataIndex: 'AnalysisResult',
       search: false,
       tooltip: '后端服务初步分析的结果差异，详细差异见对比操作',
@@ -113,12 +189,18 @@ export default (): React.ReactNode => {
         if (!record.AnalysisResult) {
           return <>0</>
         }
-        const analysisResult = JSON.parse(record.AnalysisResult)
-        return <>{analysisResult.length}</>
+        try {
+          const analysisResult = JSON.parse(record.AnalysisResult)
+          return <>{analysisResult.length}</>
+        } catch (error) {
+          console.log("errorerrorerrorerrorerrorerror", record.AnalysisResult, error)
+        }
+        return <>0</>
       },
     },
     {
       title: '创建时间',
+      width: 200,
       dataIndex: 'CreatedAt',
       search: false,
       valueType: 'dateTime'
@@ -140,7 +222,7 @@ export default (): React.ReactNode => {
           <Divider type="vertical" />
           <a onClick={async () => {
             try {
-              await retry(record.ID);
+              await retryProxyLog(record.ID);
               message.success('重发成功');
               return true;
             } catch (error) {
@@ -152,17 +234,18 @@ export default (): React.ReactNode => {
       ),
     },
   ];
+
   return (
     <PageContainer pageHeaderRender={false}>
       <ProTable<ProxyLog>
         headerTitle="代理日志"
-        scroll={{ x: 2000 }}
+        scroll={{ x: 2500 }}
         actionRef={actionRef}
         rowKey="ID"
         search={{
           labelWidth: 120,
         }}
-        request={(params, sorter, filter) => query({ ...params, sorter, filter })}
+        request={(params, sorter, filter) => queryProxyLog({ ...params, sorter, filter })}
         columns={columns}
         expandable={{
           rowExpandable: () => true,
