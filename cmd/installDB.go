@@ -20,7 +20,6 @@ import (
 
 	"github.com/hellojqk/http-proxy-analysis/src/core"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 // installDBCmd represents the db command
@@ -47,11 +46,6 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// installDBCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-
-	//配置连接字符串
-	installDBCmd.Flags().StringP("connectionString", "c", "", "数据库连接字符串")
-	//绑定到viper上
-	viper.BindPFlag("connectionString", installDBCmd.Flags().Lookup("connectionString"))
 
 	//三种配置方式
 	//第一种环境变量大写

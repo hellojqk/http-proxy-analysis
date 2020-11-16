@@ -60,6 +60,11 @@ func init() {
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.hpa.yaml or `pwd`/config/.hpa.yaml)")
 
+	//配置连接字符串
+	rootCmd.PersistentFlags().StringP("connectionString", "c", "", "数据库连接字符串")
+	//绑定到viper上
+	viper.BindPFlag("connectionString", rootCmd.PersistentFlags().Lookup("connectionString"))
+
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
