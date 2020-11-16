@@ -80,23 +80,19 @@ func parseAry(url string) []string {
 }
 
 // getURLInfo
-func getURLInfo(app *core.Application) (map[string]uint, map[string][]string) {
-	var apiMap = make(map[string]uint, len(app.APIs))
+func getURLInfo(app *core.Application) (map[string]*core.API, map[string][]string) {
+	var apiInfoMap = make(map[string]*core.API, len(app.APIs))
 	var restfulURLMap = make(map[string][]string, len(app.APIs))
 	for _, api := range app.APIs {
 		lowURL := strings.ToLower(api.URL)
-
-		if api.GET {
-			apiMap[lowURL] = api.ID
-		}
-		// todo 支持其他类型请求访问
+		apiInfoMap[lowURL] = api
 		restfulURLMap[lowURL] = parseAry(lowURL)
 	}
-	return apiMap, restfulURLMap
+	return apiInfoMap, restfulURLMap
 }
 
 // matchURL 匹配URL对应的api id
-func matchURL(apiMap map[string]uint, restfulURLMap map[string][]string, requestURL string) uint {
+func matchURL(apiInfoMap map[string]*core.API, restfulURLMap map[string][]string, requestURL string) *core.API {
 	url, err := url.ParseRequestURI(requestURL)
 	if err != nil {
 		log.Err(err).Msg("url.ParseRequestURI")
@@ -143,9 +139,9 @@ func matchURL(apiMap map[string]uint, restfulURLMap map[string][]string, request
 		}
 	}
 	if restfulURL == "" {
-		return 0
+		return nil
 	}
-	return apiMap[restfulURL]
+	return apiInfoMap[restfulURL]
 }
 
 var cli = http.DefaultClient
@@ -159,16 +155,18 @@ func logResponseBody(app *core.Application) gin.HandlerFunc {
 		// 	c.Next()
 		// 	return
 		// }
-		apiMap, restfulURLMap := getURLInfo(app)
-		apiID := matchURL(apiMap, restfulURLMap, c.Request.RequestURI)
+		apiInfoMap, restfulURLMap := getURLInfo(app)
+		apiInfo := matchURL(apiInfoMap, restfulURLMap, c.Request.RequestURI)
 
 		w := &responseBodyWriter{body: &bytes.Buffer{}, ResponseWriter: c.Writer}
 		c.Writer = w
 
 		proxyLog := &core.ProxyLog{
 			ApplicationID:    app.ID,
-			APIID:            apiID,
 			OldRequestMethod: c.Request.Method,
+		}
+		if apiInfo != nil {
+			proxyLog.APIID = apiInfo.ID
 		}
 
 		//记录请求信息参数
@@ -211,7 +209,14 @@ func logResponseBody(app *core.Application) gin.HandlerFunc {
 			proxyLog.OldResponseBody = w.body.String()
 		}
 
-		if app.NewHost != "" && c.Request.Method == "GET" {
+		//配置了新的站点，接口不在配置列表里默认允许get镜像，接口在配置列表里则按照配置是否允许镜像
+		if app.NewHost != "" && ((apiInfo == nil && c.Request.Method == "GET") ||
+			(apiInfo != nil &&
+				((c.Request.Method == "GET" && apiInfo.GETAllowMirror) ||
+					(c.Request.Method == "POST" && apiInfo.POSTAllowMirror) ||
+					(c.Request.Method == "PUT" && apiInfo.PUTAllowMirror) ||
+					(c.Request.Method == "PATCH" && apiInfo.PATCHAllowMirror) ||
+					(c.Request.Method == "DELETE" && apiInfo.DELETEAllowMirror)))) {
 			newRequest, err := http.NewRequest(c.Request.Method, app.NewHost+c.Request.RequestURI, bytes.NewReader(requestData))
 			if err != nil {
 				log.Err(err).Msg("http.NewRequest")
