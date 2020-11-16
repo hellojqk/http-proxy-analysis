@@ -1,8 +1,8 @@
 package service
 
 import (
-	"github.com/hellojqk/proxy-log/src/core"
-	"github.com/hellojqk/proxy-log/src/model"
+	"github.com/hellojqk/http-proxy-analysis/src/core"
+	"github.com/hellojqk/http-proxy-analysis/src/model"
 )
 
 // InsertProwyLog .

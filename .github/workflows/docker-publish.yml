@@ -15,7 +15,7 @@ on:
 
 env:
   # TODO: Change variable to your image's name.
-  IMAGE_NAME: proxy-log
+  IMAGE_NAME: http-proxy-analysis
 
 jobs:
   # Run tests.

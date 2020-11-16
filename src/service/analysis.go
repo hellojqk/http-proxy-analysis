@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/hellojqk/http-proxy-analysis/src/core"
 	"github.com/hellojqk/jsondiff"
-	"github.com/hellojqk/proxy-log/src/core"
 	"github.com/rs/zerolog/log"
 )
 

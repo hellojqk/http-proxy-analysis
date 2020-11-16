@@ -16,7 +16,7 @@ limitations under the License.
 package cmd
 
 import (
-	"github.com/hellojqk/proxy-log/src/dashboard"
+	"github.com/hellojqk/http-proxy-analysis/src/dashboard"
 	"github.com/spf13/cobra"
 )
 

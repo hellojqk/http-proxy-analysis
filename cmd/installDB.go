@@ -18,7 +18,7 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/hellojqk/proxy-log/src/core"
+	"github.com/hellojqk/http-proxy-analysis/src/core"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )

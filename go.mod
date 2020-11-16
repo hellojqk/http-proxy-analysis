@@ -1,4 +1,4 @@
-module github.com/hellojqk/proxy-log
+module github.com/hellojqk/http-proxy-analysis
 
 go 1.15
 

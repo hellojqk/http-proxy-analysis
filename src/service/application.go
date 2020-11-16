@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/hellojqk/proxy-log/src/core"
-	"github.com/hellojqk/proxy-log/src/util"
+	"github.com/hellojqk/http-proxy-analysis/src/core"
+	"github.com/hellojqk/http-proxy-analysis/src/util"
 	"github.com/pterm/pterm"
 	"github.com/rs/zerolog/log"
 )

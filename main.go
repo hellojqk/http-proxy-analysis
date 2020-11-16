@@ -15,7 +15,7 @@ limitations under the License.
 */
 package main
 
-import "github.com/hellojqk/proxy-log/cmd"
+import "github.com/hellojqk/http-proxy-analysis/cmd"
 
 func main() {
 	cmd.Execute()
