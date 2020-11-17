@@ -136,5 +136,10 @@ func Run() {
 		})
 	})
 
+	g.GET("/", func(c *gin.Context) {
+		c.Redirect(http.StatusFound, "/ui")
+		c.Abort()
+	})
+
 	g.Run(fmt.Sprintf(":%d", viper.GetInt("dashboardPort")))
 }
