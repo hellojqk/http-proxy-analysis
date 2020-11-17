@@ -81,6 +81,7 @@ type ProxyLog struct {
 	AnalysisDiffCount int    `gorm:"default:0;not null;"` //初步分析不同数量
 	Model
 
+	Status      bool `gorm:"type:tinyint(1);default:0;not null"` //状态，是否有效数据
 	Application *Application
 	API         *API
 }

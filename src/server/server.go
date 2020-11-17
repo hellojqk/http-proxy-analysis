@@ -167,6 +167,7 @@ func logResponseBody(app *core.Application) gin.HandlerFunc {
 		proxyLog := &core.ProxyLog{
 			ApplicationID:    app.ID,
 			OldRequestMethod: c.Request.Method,
+			Status:           true,
 		}
 		if apiInfo != nil {
 			proxyLog.APIID = apiInfo.ID
