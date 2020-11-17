@@ -1,4 +1,7 @@
 export default {
+  'menu.index': '日志分析',
+  'menu.api': 'API管理',
+  'menu.app': '应用管理',
   'menu.welcome': '欢迎',
   'menu.more-blocks': '更多区块',
   'menu.home': '首页',

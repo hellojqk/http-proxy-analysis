@@ -1,16 +1,12 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import { PageContainer } from '@ant-design/pro-layout';
-import { PlusOutlined } from '@ant-design/icons';
 import ProTable, { ActionType, ProColumns } from '@ant-design/pro-table';
-import { Button, Collapse, Divider, Input, message, Select, Tag } from 'antd';
-import { SelectProps } from 'antd/lib/select';
-import { queryProxyLog, retryProxyLog } from '../services/proxyLog';
-
-import { queryApplication } from "../services/application"
+import { Collapse, Divider, message, Tag } from 'antd';
+import { queryProxyLog, retryProxyLog } from '@/services/proxyLog';
+import ApplicationSelect from '@/components/ApplicationSelect';
+import ApiSelect from '@/components/ApiSelect';
 
 const { Panel } = Collapse;
-
-const { Option } = Select;
 
 // import { Card, Alert, Typography } from 'antd';
 // import styles from './Index.less';
@@ -23,112 +19,7 @@ const { Option } = Select;
 //   </pre>
 // );
 
-export interface Model {
-  ID: number;
-  CreatedAt: string;
-  UpdatedAt: string;
-}
-export interface Application extends Model {
-  Name: string;
-  OldHost: string;
-  NewHost: string;
-  Status: boolean;
-  APIs: API[];
-}
-export interface API extends Model {
-  ApplicationID: number;
-  URL: string;
-  GET: boolean;
-  GETSummary: string;
-  POST: boolean;
-  POSTSummary: string;
-  PUT: boolean;
-  PUTSummary: string;
-  PATCH: boolean;
-  PATCHSummary: string;
-  DELETE: boolean;
-  DELETESummary: string;
-  Status: boolean;
-  Application: Application;
-}
-export interface ProxyLog extends Model {
-  ApplicationID: number;
-  APIID: number;
-  OldRequestMethod: string;
-  OldRequestURL: string;
-  OldRequestHeader: string;
-  OldRequestBody: string;
-  OldResponseHeader: string;
-  OldResponseBody: string;
-  OldResponseStatus: number;
-  OldDuration: number;
-  NewResponseHeader: string;
-  NewResponseBody: string;
-  NewResponseStatus: number;
-  NewDuration: number;
-  AnalysisResult: string;
-  AnalysisDiffCount: number;
-  Application: Application;
-  API: API;
-}
 
-const ApplicationSelect = (props: any) => {
-  const [applicationList, setApplicationList] = useState<Application[]>([])
-  useEffect(() => {
-    if (!applicationList || applicationList.length === 0) {
-      queryApplication().then(result => {
-        if (result) {
-          setApplicationList(result)
-        }
-      })
-    }
-  }, [])
-  return <Select {...props} filterOption={(input, option: { label: string }) => {
-    return option && option.label && option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-  }} showSearch options={applicationList.map((f: Application) => { return { label: f.Name, value: f.ID } })} />
-}
-
-const ApiSelect = (props: any) => {
-  const { form } = props
-  const [applicationList, setApplicationList] = useState<Application[]>([])
-  useEffect(() => {
-    if (!applicationList || applicationList.length === 0) {
-      queryApplication().then(result => {
-        if (result) {
-          setApplicationList(result)
-        }
-      })
-    }
-  }, [])
-  const apiList: {}[] = [];
-  const applicationID = form.getFieldValue("ApplicationID")
-  if (applicationID && applicationList) {
-    applicationList.forEach((app: Application) => {
-      if (app.ID === applicationID && app.APIs) {
-        app.APIs.forEach(api => {
-          if (api.GET) {
-            apiList.push({ key: `GET${api.ID}`, value: api.ID, label: `GET ${api.URL} ${api.GETSummary}` })
-          }
-          if (api.POST) {
-            apiList.push({ key: `POST${api.ID}`, value: api.ID, label: `POST ${api.URL} ${api.POSTSummary}` })
-          }
-          if (api.PUT) {
-            apiList.push({ key: `PUT${api.ID}`, value: api.ID, label: `PUT ${api.URL} ${api.PUTSummary}` })
-          }
-          if (api.PATCH) {
-            apiList.push({ key: `PATCH${api.ID}`, value: api.ID, label: `PATCH ${api.URL} ${api.PATCHSummary}` })
-          }
-          if (api.DELETE) {
-            apiList.push({ key: `DELETE${api.ID}`, value: api.ID, label: `DELETE ${api.URL} ${api.DELETESummary}` })
-          }
-        })
-      }
-    })
-  }
-  return <Select {...props} filterOption={(input, option: { label: string }) => {
-    return option && option.label && option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-  }} showSearch options={apiList} />
-}
 
 const methodMap = {
   "GET": "blue",
@@ -141,7 +32,7 @@ const methodMap = {
 export default (): React.ReactNode => {
   const actionRef = useRef<ActionType>();
 
-  const columns: ProColumns<ProxyLog>[] = [
+  const columns: ProColumns<API.ProxyLog>[] = [
     {
       title: '编号',
       dataIndex: 'ID',
@@ -286,7 +177,7 @@ export default (): React.ReactNode => {
 
   return (
     <PageContainer pageHeaderRender={false}>
-      <ProTable<ProxyLog>
+      <ProTable<API.ProxyLog>
         headerTitle="代理日志"
         scroll={{ x: 2500 }}
         actionRef={actionRef}

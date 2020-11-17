@@ -125,11 +125,22 @@ func TermShowAPI() (result []core.API) {
 }
 
 // ListAPI 获取API列表
-func ListAPI(applicationID uint) (result []core.API) {
+func ListAPI(applicationID uint) (result []core.API, err error) {
 	result = make([]core.API, 0, 1)
-	err := core.DB.Where(&core.API{ApplicationID: applicationID}).Find(&result).Error
+	err = core.DB.Where(&core.API{ApplicationID: applicationID}).Find(&result).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
-		log.Err(err).Msg("list app")
+		log.Err(err).Msg("ListAPI")
+		return
+	}
+	return
+}
+
+//UpdateAPI API更新
+func UpdateAPI(id uint, columns map[string]interface{}) (err error) {
+	err = core.DB.Model(&core.API{}).Where(&core.API{Model: core.Model{ID: id}}).
+		UpdateColumns(columns).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		log.Err(err).Msg("UpdateAPI")
 		return
 	}
 	return

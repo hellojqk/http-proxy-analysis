@@ -32,4 +32,53 @@ declare namespace API {
     extra: any;
     status: string;
   }
+
+  export interface Model {
+    ID: number;
+    CreatedAt: string;
+    UpdatedAt: string;
+  }
+  export interface Application extends Model {
+    Name: string;
+    OldHost: string;
+    NewHost: string;
+    Status: boolean;
+    APIs: API[];
+  }
+  export interface API extends Model {
+    ApplicationID: number;
+    URL: string;
+    GET: boolean;
+    GETSummary: string;
+    POST: boolean;
+    POSTSummary: string;
+    PUT: boolean;
+    PUTSummary: string;
+    PATCH: boolean;
+    PATCHSummary: string;
+    DELETE: boolean;
+    DELETESummary: string;
+    Status: boolean;
+    Application: Application;
+  }
+  export interface ProxyLog extends Model {
+    ApplicationID: number;
+    APIID: number;
+    OldRequestMethod: string;
+    OldRequestURL: string;
+    OldRequestHeader: string;
+    OldRequestBody: string;
+    OldResponseHeader: string;
+    OldResponseBody: string;
+    OldResponseStatus: number;
+    OldDuration: number;
+    NewResponseHeader: string;
+    NewResponseBody: string;
+    NewResponseStatus: number;
+    NewDuration: number;
+    AnalysisResult: string;
+    AnalysisDiffCount: number;
+    Application: Application;
+    API: API;
+  }
 }

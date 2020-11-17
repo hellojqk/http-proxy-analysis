@@ -63,6 +63,7 @@ func Run() {
 		list, total, err := service.ListProxyLog(param)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+			return
 		}
 		c.JSON(http.StatusOK, gin.H{"total": total, "data": list})
 	})
@@ -107,18 +108,45 @@ func Run() {
 		list, err := service.ListAPP(true)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+			return
 		}
 		c.JSON(http.StatusOK, list)
 	})
 
-	// //获取应用程序API数据
-	// group.GET("/application/:id/api", func(c *gin.Context) {
-	// 	list, err := service.ListAPI()
-	// 	if err != nil {
-	// 		c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
-	// 	}
-	// 	c.JSON(http.StatusOK, list)
-	// })
+	//获取应用程序API数据
+	group.GET("/application/:id/api", func(c *gin.Context) {
+		app := &core.Application{}
+		if err := c.ShouldBindUri(app); err != nil {
+			c.String(http.StatusOK, err.Error())
+			return
+		}
+		list, err := service.ListAPI(app.ID)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, list)
+	})
+
+	// api字段部分更新
+	group.PATCH("/api/:id", func(c *gin.Context) {
+		model := &core.API{}
+		if err := c.ShouldBindUri(model); err != nil {
+			c.String(http.StatusOK, err.Error())
+			return
+		}
+		var modelMap = make(map[string]interface{})
+		if err := c.ShouldBindJSON(&modelMap); err != nil {
+			c.String(http.StatusOK, err.Error())
+			return
+		}
+		err := service.UpdateAPI(model.ID, modelMap)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{})
+	})
 
 	group.POST("/login/account", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{

@@ -5,3 +5,7 @@ export async function queryApplication(params?: any) {
     params,
   });
 }
+
+export async function queryApplicationAPIList(id: number) {
+  return request(`/api/application/${id}/api`);
+}

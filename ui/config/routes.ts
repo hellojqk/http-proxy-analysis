@@ -13,8 +13,20 @@
   {
     path: '/index',
     name: 'index',
-    icon: 'smile',
+    icon: 'diff',
     component: './Index',
+  },
+  {
+    path: '/api/index',
+    name: 'api',
+    icon: 'api',
+    component: './api/Index',
+  },
+  {
+    path: '/app/index',
+    name: 'app',
+    icon: 'appstore',
+    component: './app/Index',
   },
   // {
   //   path: '/admin',
