@@ -3,10 +3,10 @@ import { PageContainer } from '@ant-design/pro-layout';
 import { PlusOutlined } from '@ant-design/icons';
 import ProTable, { ActionType, ProColumns } from '@ant-design/pro-table';
 import { Button, Collapse, Divider, Input, message, Select } from 'antd';
+import { SelectProps } from 'antd/lib/select';
 import { queryProxyLog, retryProxyLog } from '../services/proxyLog';
 
 import { queryApplication } from "../services/application"
-import { SelectProps } from 'antd/lib/select';
 
 const { Panel } = Collapse;
 
@@ -82,7 +82,7 @@ const ApplicationSelect = (props: any) => {
   }, [])
   return <Select {...props} filterOption={(input, option: { label: string }) => {
     return option && option.label && option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-  }} showSearch={true} options={applicationList.map((f: Application) => { return { label: f.Name, value: f.ID } })}></Select>
+  }} showSearch options={applicationList.map((f: Application) => { return { label: f.Name, value: f.ID } })} />
 }
 
 const ApiSelect = (props: any) => {
@@ -97,24 +97,24 @@ const ApiSelect = (props: any) => {
       })
     }
   }, [])
-  let apiList: {}[] = [];
+  const apiList: {}[] = [];
   const applicationID = form.getFieldValue("ApplicationID")
   if (applicationID && applicationList) {
     applicationList.forEach((app: Application) => {
       if (app.ID == applicationID && app.APIs) {
         app.APIs.forEach(api => {
-          api.GET && apiList.push({ value: api.ID, label: "GET " + api.URL + " " + api.GETSummary })
-          api.POST && apiList.push({ value: api.ID, label: "POST " + api.URL + " " + api.POSTSummary })
-          api.PUT && apiList.push({ value: api.ID, label: "PUT " + api.URL + " " + api.PUTSummary })
-          api.PATCH && apiList.push({ value: api.ID, label: "PATCH " + api.URL + " " + api.PATCHSummary })
-          api.DELETE && apiList.push({ value: api.ID, label: "DELETE " + api.URL + " " + api.DELETESummary })
+          api.GET && apiList.push({ value: api.ID, label: `GET ${  api.URL  } ${  api.GETSummary}` })
+          api.POST && apiList.push({ value: api.ID, label: `POST ${  api.URL  } ${  api.POSTSummary}` })
+          api.PUT && apiList.push({ value: api.ID, label: `PUT ${  api.URL  } ${  api.PUTSummary}` })
+          api.PATCH && apiList.push({ value: api.ID, label: `PATCH ${  api.URL  } ${  api.PATCHSummary}` })
+          api.DELETE && apiList.push({ value: api.ID, label: `DELETE ${  api.URL  } ${  api.DELETESummary}` })
         })
       }
     })
   }
   return <Select {...props} filterOption={(input, option: { label: string }) => {
     return option && option.label && option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
-  }} showSearch={true} options={apiList}></Select>
+  }} showSearch options={apiList} />
 }
 
 export default (): React.ReactNode => {
@@ -137,7 +137,7 @@ export default (): React.ReactNode => {
         return <>{record.Application.Name}</>
       },
       renderFormItem: (item, config, form) => {
-        return <ApplicationSelect {...config}></ApplicationSelect>
+        return <ApplicationSelect {...config} />
       }
     },
     {
@@ -150,7 +150,7 @@ export default (): React.ReactNode => {
         return <>{record.API.URL}</>
       },
       renderFormItem: (item, config, form) => {
-        return <ApiSelect {...config} form={form}></ApiSelect>
+        return <ApiSelect {...config} form={form} />
       }
     },
     {
@@ -218,7 +218,7 @@ export default (): React.ReactNode => {
       width: 100,
       render: (_, record) => (
         <>
-          <a href={`/proxylog/${record.ID}`}>对比</a>
+          <a target="_blank" rel="noreferrer" href={`/proxylog/${record.ID}`}>对比</a>
           <Divider type="vertical" />
           <a onClick={async () => {
             try {

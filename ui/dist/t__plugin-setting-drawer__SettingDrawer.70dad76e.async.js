@@ -1,1 +1,0 @@
-(window.webpackJsonp=window.webpackJsonp||[]).push([[8],{V5Tm:function(r,n,t){"use strict";t.r(n);var a=t("VTBJ"),o=t("q1tI"),_=t.n(o);n.default=function(e){return _.a.createElement(t("nIAu").default,Object(a.a)({},e))}}}]);
