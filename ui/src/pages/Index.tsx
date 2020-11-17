@@ -106,11 +106,21 @@ const ApiSelect = (props: any) => {
     applicationList.forEach((app: Application) => {
       if (app.ID === applicationID && app.APIs) {
         app.APIs.forEach(api => {
-          api.GET && apiList.push({ value: api.ID, label: `GET ${api.URL} ${api.GETSummary}` })
-          api.POST && apiList.push({ value: api.ID, label: `POST ${api.URL} ${api.POSTSummary}` })
-          api.PUT && apiList.push({ value: api.ID, label: `PUT ${api.URL} ${api.PUTSummary}` })
-          api.PATCH && apiList.push({ value: api.ID, label: `PATCH ${api.URL} ${api.PATCHSummary}` })
-          api.DELETE && apiList.push({ value: api.ID, label: `DELETE ${api.URL} ${api.DELETESummary}` })
+          if (api.GET) {
+            apiList.push({ key: `GET${api.ID}`, value: api.ID, label: `GET ${api.URL} ${api.GETSummary}` })
+          }
+          if (api.POST) {
+            apiList.push({ key: `POST${api.ID}`, value: api.ID, label: `POST ${api.URL} ${api.POSTSummary}` })
+          }
+          if (api.PUT) {
+            apiList.push({ key: `PUT${api.ID}`, value: api.ID, label: `PUT ${api.URL} ${api.PUTSummary}` })
+          }
+          if (api.PATCH) {
+            apiList.push({ key: `PATCH${api.ID}`, value: api.ID, label: `PATCH ${api.URL} ${api.PATCHSummary}` })
+          }
+          if (api.DELETE) {
+            apiList.push({ key: `DELETE${api.ID}`, value: api.ID, label: `DELETE ${api.URL} ${api.DELETESummary}` })
+          }
         })
       }
     })
