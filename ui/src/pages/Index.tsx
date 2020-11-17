@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { PageContainer } from '@ant-design/pro-layout';
 import { PlusOutlined } from '@ant-design/icons';
 import ProTable, { ActionType, ProColumns } from '@ant-design/pro-table';
-import { Button, Collapse, Divider, Input, message, Select } from 'antd';
+import { Button, Collapse, Divider, Input, message, Select, Tag } from 'antd';
 import { SelectProps } from 'antd/lib/select';
 import { queryProxyLog, retryProxyLog } from '../services/proxyLog';
 
@@ -61,10 +61,13 @@ export interface ProxyLog extends Model {
   OldResponseHeader: string;
   OldResponseBody: string;
   OldResponseStatus: number;
+  OldDuration: number;
   NewResponseHeader: string;
   NewResponseBody: string;
   NewResponseStatus: number;
+  NewDuration: number;
   AnalysisResult: string;
+  AnalysisDiffCount: number;
   Application: Application;
   API: API;
 }
@@ -72,7 +75,7 @@ export interface ProxyLog extends Model {
 const ApplicationSelect = (props: any) => {
   const [applicationList, setApplicationList] = useState<Application[]>([])
   useEffect(() => {
-    if (!applicationList || applicationList.length == 0) {
+    if (!applicationList || applicationList.length === 0) {
       queryApplication().then(result => {
         if (result) {
           setApplicationList(result)
@@ -89,7 +92,7 @@ const ApiSelect = (props: any) => {
   const { form } = props
   const [applicationList, setApplicationList] = useState<Application[]>([])
   useEffect(() => {
-    if (!applicationList || applicationList.length == 0) {
+    if (!applicationList || applicationList.length === 0) {
       queryApplication().then(result => {
         if (result) {
           setApplicationList(result)
@@ -101,13 +104,13 @@ const ApiSelect = (props: any) => {
   const applicationID = form.getFieldValue("ApplicationID")
   if (applicationID && applicationList) {
     applicationList.forEach((app: Application) => {
-      if (app.ID == applicationID && app.APIs) {
+      if (app.ID === applicationID && app.APIs) {
         app.APIs.forEach(api => {
-          api.GET && apiList.push({ value: api.ID, label: `GET ${  api.URL  } ${  api.GETSummary}` })
-          api.POST && apiList.push({ value: api.ID, label: `POST ${  api.URL  } ${  api.POSTSummary}` })
-          api.PUT && apiList.push({ value: api.ID, label: `PUT ${  api.URL  } ${  api.PUTSummary}` })
-          api.PATCH && apiList.push({ value: api.ID, label: `PATCH ${  api.URL  } ${  api.PATCHSummary}` })
-          api.DELETE && apiList.push({ value: api.ID, label: `DELETE ${  api.URL  } ${  api.DELETESummary}` })
+          api.GET && apiList.push({ value: api.ID, label: `GET ${api.URL} ${api.GETSummary}` })
+          api.POST && apiList.push({ value: api.ID, label: `POST ${api.URL} ${api.POSTSummary}` })
+          api.PUT && apiList.push({ value: api.ID, label: `PUT ${api.URL} ${api.PUTSummary}` })
+          api.PATCH && apiList.push({ value: api.ID, label: `PATCH ${api.URL} ${api.PATCHSummary}` })
+          api.DELETE && apiList.push({ value: api.ID, label: `DELETE ${api.URL} ${api.DELETESummary}` })
         })
       }
     })
@@ -115,6 +118,14 @@ const ApiSelect = (props: any) => {
   return <Select {...props} filterOption={(input, option: { label: string }) => {
     return option && option.label && option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
   }} showSearch options={apiList} />
+}
+
+const methodMap = {
+  "GET": "blue",
+  "POST": "geekblue",
+  "PUT": "purple",
+  "PATCH": "magenta",
+  "DELETE": "gold",
 }
 
 export default (): React.ReactNode => {
@@ -156,6 +167,7 @@ export default (): React.ReactNode => {
     {
       title: '旧方法',
       width: 100,
+      align: "center",
       dataIndex: 'OldRequestMethod',
       tooltip: '接口请求类型',
       valueEnum: {
@@ -164,38 +176,65 @@ export default (): React.ReactNode => {
         PUT: { text: 'PUT' },
         PATCH: { text: 'PATCH' },
         DELETE: { text: 'DELETE' },
-      }
+      },
+      render: (_, record) => {
+        return <Tag color={methodMap[record.OldRequestMethod]}>{record.OldRequestMethod}</Tag>
+      },
     },
-
     {
       title: '旧状态',
       width: 100,
+      align: "center",
       dataIndex: 'OldResponseStatus',
-      tooltip: '旧接口返回HTTP状态码'
+      tooltip: '旧接口返回HTTP状态码',
+      render: (_, record) => {
+        if (record.OldResponseStatus !== 200) {
+          return <Tag color="red">{record.OldResponseStatus}</Tag>
+        }
+        return <Tag color="green">{record.OldResponseStatus}</Tag>;
+      },
     },
     {
       title: '新状态',
       width: 100,
+      align: "center",
       dataIndex: 'NewResponseStatus',
-      tooltip: '新接口返回HTTP状态码'
+      tooltip: '新接口返回HTTP状态码',
+      render: (_, record) => {
+        if (record.NewResponseStatus !== 200) {
+          return <Tag color="red">{record.NewResponseStatus}</Tag>
+        }
+        return <Tag color="green">{record.NewResponseStatus}</Tag>;
+      },
+    },
+    {
+      title: '旧耗时',
+      width: 100,
+      search: false,
+      align: "center",
+      dataIndex: 'OldDuration',
+      tooltip: '接口耗时，毫秒',
+    },
+    {
+      title: '新耗时',
+      width: 100,
+      search: false,
+      align: "center",
+      dataIndex: 'NewDuration',
+      tooltip: '接口耗时，毫秒',
     },
     {
       title: '分析结果',
       width: 120,
-      dataIndex: 'AnalysisResult',
       search: false,
+      align: "center",
+      dataIndex: 'AnalysisDiffCount',
       tooltip: '后端服务初步分析的结果差异，详细差异见对比操作',
       render: (_, record) => {
-        if (!record.AnalysisResult) {
-          return <>0</>
+        if (record.AnalysisDiffCount > 0) {
+          return <Tag color="red">{record.AnalysisDiffCount}</Tag>
         }
-        try {
-          const analysisResult = JSON.parse(record.AnalysisResult)
-          return <>{analysisResult.length}</>
-        } catch (error) {
-          console.log("errorerrorerrorerrorerrorerror", record.AnalysisResult, error)
-        }
-        return <>0</>
+        return <Tag color="green">{record.AnalysisDiffCount}</Tag>;
       },
     },
     {

@@ -20,8 +20,9 @@ type Model struct {
 // Application 代理程序列表
 type Application struct {
 	Name    string `gorm:"type:varchar(50);default:'';not null"`  //代理应用名称
-	OldHost string `gorm:"type:varchar(255);default:'';not null"` //旧应用地址
-	NewHost string `gorm:"type:varchar(255);default:'';not null"` //新应用地址
+	Host    string `gorm:"type:varchar(255);default:'';not null"` //代理地址 http(s)://domain
+	OldHost string `gorm:"type:varchar(255);default:'';not null"` //旧应用地址 http(s)://(ip:port|localDomain)
+	NewHost string `gorm:"type:varchar(255);default:'';not null"` //新应用地址 http(s)://(ip:port|localDomain)
 	Status  bool   `gorm:"type:tinyint(1);default:0;not null"`    //状态，是否启用
 	Model
 	APIs []*API

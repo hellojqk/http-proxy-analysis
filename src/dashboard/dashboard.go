@@ -83,7 +83,7 @@ func Run() {
 		if proxyLog.OldRequestMethod != "GET" {
 			body = strings.NewReader(proxyLog.OldRequestBody)
 		}
-		req, err := http.NewRequest(proxyLog.OldRequestMethod, proxyLog.Application.OldHost+proxyLog.OldRequestURL, body)
+		req, err := http.NewRequest(proxyLog.OldRequestMethod, proxyLog.Application.Host+proxyLog.OldRequestURL, body)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
