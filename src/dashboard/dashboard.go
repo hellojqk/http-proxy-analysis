@@ -113,6 +113,16 @@ func Run() {
 		c.JSON(http.StatusOK, list)
 	})
 
+	//获取应用程序数据
+	group.GET("/diff_strategy", func(c *gin.Context) {
+		list, err := service.ListDiffStrategy()
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, list)
+	})
+
 	//获取应用程序API数据
 	group.GET("/application/:id/api", func(c *gin.Context) {
 		app := &core.Application{}
