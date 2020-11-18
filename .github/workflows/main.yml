@@ -17,10 +17,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     
-    - name: Set up Node 12.x
-      uses: actions/setup-go@v2
+    - name: Use Node.js 12.x
+      uses: actions/setup-node@v1
       with:
-        go-version: ^1.15.4
+        node-version: 12.x
+    
+    - name: Build UI
+      run: |
+          cd ./ui
+          npm ci
+          npm run build
 
     - name: Set up Go 1.x
       uses: actions/setup-go@v2
@@ -42,21 +48,17 @@ jobs:
       run: go build -v -o ./bin/app .
       
     - name: Build image
-      run: docker build . --file Dockerfile --tag $IMAGE_NAME
+      run: |
+          ls -l /.bin
+          docker build . --file Dockerfile --tag $IMAGE_NAME
 
     - name: Log into registry
-      run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+      run: docker login -u "${{ secrets.DOCKER_USERNAME }}" -p "${{ secrets.DOCKER_PASSWORD }}"
     
     - name: Push image
       run: |
           docker tag $IMAGE_NAME $IMAGE_NAME:dev
           docker push $IMAGE_NAME:dev
 
-#     - name: 'Upload Artifact'
-#       uses: actions/upload-artifact@v2
-#       with:
-#         name: my-artifact
-#         path: ./bin/app
-#         retention-days: 1
 #     - name: Test
 #       run: go test -v .
