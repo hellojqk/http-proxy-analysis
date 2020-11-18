@@ -43,7 +43,7 @@ func ReLoadDiffStrategy() {
 	}
 	m := make(map[string]jsondiff.Code)
 	for _, item := range list {
-		m[item.Filed] = DiffResultTypeKeyMap[item.Ignore]
+		m[item.Field] = DiffResultTypeKeyMap[item.Ignore]
 	}
 	// to do lock
 	ingoreFields = m
