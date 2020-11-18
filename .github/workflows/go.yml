@@ -6,12 +6,21 @@ on:
   pull_request:
     branches: [ main ]
 
+env:
+  # TODO: Change variable to your image's name.
+  IMAGE_NAME: hellojqk/http-proxy-analysis
+
 jobs:
 
   build:
     name: Build
     runs-on: ubuntu-latest
     steps:
+    
+    - name: Set up Node 12.x
+      uses: actions/setup-go@v2
+      with:
+        go-version: ^1.15.4
 
     - name: Set up Go 1.x
       uses: actions/setup-go@v2
@@ -31,12 +40,23 @@ jobs:
 
     - name: Build
       run: go build -v -o ./bin/app .
+      
+    - name: Build image
+      run: docker build . --file Dockerfile --tag $IMAGE_NAME
 
-    - name: 'Upload Artifact'
-      uses: actions/upload-artifact@v2
-      with:
-        name: my-artifact
-        path: ./bin/app
-        retention-days: 1
+    - name: Log into registry
+      run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+    
+    - name: Push image
+      run: |
+          docker tag $IMAGE_NAME $IMAGE_NAME:dev
+          docker push $IMAGE_NAME:dev
+
+#     - name: 'Upload Artifact'
+#       uses: actions/upload-artifact@v2
+#       with:
+#         name: my-artifact
+#         path: ./bin/app
+#         retention-days: 1
 #     - name: Test
 #       run: go test -v .
