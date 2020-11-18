@@ -44,16 +44,11 @@ jobs:
             dep ensure
         fi
 
-    - name: Build
-      run: go build -v -o ./bin/app .
+    - name: Build Go Bin
+      run: go build -v -o ./bin/hpa .
 
     - name: Build image
-      run: |
-          ls -l .
-          mkdir ./ui/dist
-          ls -l ./bin/
-          ls -l ./ui/dist/
-          docker build -t $IMAGE_NAME .
+      run: docker build -t $IMAGE_NAME .
 
     - name: Log into registry
       run: docker login -u "${{ secrets.DOCKER_USERNAME }}" -p "${{ secrets.DOCKER_PASSWORD }}"
@@ -62,6 +57,3 @@ jobs:
       run: |
           docker tag $IMAGE_NAME $IMAGE_NAME:dev
           docker push $IMAGE_NAME:dev
-
-#     - name: Test
-#       run: go test -v .
