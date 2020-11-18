@@ -16,18 +16,7 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     steps:
-    
-    - name: Use Node.js 12.x
-      uses: actions/setup-node@v1
-      with:
-        node-version: 12.x
-    
-    - name: Build UI
-      run: |
-          cd ./ui
-          npm ci
-          npm run build
-
+      
     - name: Set up Go 1.x
       uses: actions/setup-go@v2
       with:
@@ -46,10 +35,22 @@ jobs:
 
     - name: Build
       run: go build -v -o ./bin/app .
+    
+    - name: Use Node.js 12.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: 12.x
+    
+    - name: Build UI
+      run: |
+          cd ./ui
+          npm ci
+          npm run build
       
     - name: Build image
       run: |
-          ls -l /.bin
+          ls -l ./bin/
+          ls -l ./ui/dist/
           docker build . --file Dockerfile --tag $IMAGE_NAME
 
     - name: Log into registry
