@@ -46,20 +46,11 @@ jobs:
 
     - name: Build
       run: go build -v -o ./bin/app .
-    
-    - name: Build and push Docker images
-      # You may pin to the exact commit or the version.
-      # uses: docker/build-push-action@6efc2b01cbb63cfc68c370c6c806586fa6384a3a
-      uses: docker/build-push-action@v2.1.0
-      with:
-        # List of tags
-        tags: hellojqk/http-proxy-analysis
-
-#     - name: Build image
-#       run: |
-#           ls -l ./bin/
-#           ls -l ./ui/dist/
-#           docker build . --file Dockerfile --tag $IMAGE_NAME
+    - name: Build image
+      run: |
+          ls -l ./bin/
+          ls -l ./ui/dist/
+          docker build -tag $IMAGE_NAME .
 
     - name: Log into registry
       run: docker login -u "${{ secrets.DOCKER_USERNAME }}" -p "${{ secrets.DOCKER_PASSWORD }}"
