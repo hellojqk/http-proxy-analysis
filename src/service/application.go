@@ -27,8 +27,8 @@ func CreateAPP(appName string, oldHost string, newHost string) (err error) {
 		Name:    appName,
 		OldHost: oldHost,
 		NewHost: newHost,
-		Status:  true,
 	}
+	app.Status = true
 	err = core.DB.Where(&core.Application{Name: appName}).FirstOrCreate(app).Error
 	return
 }

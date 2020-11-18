@@ -154,10 +154,10 @@ func logResponseBody(app *core.Application) gin.HandlerFunc {
 
 	return func(c *gin.Context) {
 		//swagger文档地址则跳过处理
-		// if strings.HasPrefix(c.Request.RequestURI, "/swagger") {
-		// 	c.Next()
-		// 	return
-		// }
+		if strings.HasPrefix(c.Request.RequestURI, "/swagger") {
+			c.Next()
+			return
+		}
 		apiInfoMap, restfulURLMap := getURLInfo(app)
 		apiInfo := matchURL(apiInfoMap, restfulURLMap, c.Request.RequestURI)
 
@@ -191,10 +191,7 @@ func logResponseBody(app *core.Application) gin.HandlerFunc {
 
 		oldBeginTime := time.Now().Unix()
 		c.Next()
-		proxyLog.OldDuration = time.Now().Unix() - oldBeginTime
-
 		proxyLog.OldResponseStatus = c.Writer.Status()
-
 		responseHeaderBts, err := json.Marshal(c.Writer.Header())
 		if err != nil {
 			log.Err(err).Msg("json.Marshal(c.Writer.Header())")
@@ -214,6 +211,7 @@ func logResponseBody(app *core.Application) gin.HandlerFunc {
 		default:
 			proxyLog.OldResponseBody = w.body.String()
 		}
+		proxyLog.OldDuration = time.Now().Unix() - oldBeginTime
 
 		//配置了新的站点，接口不在配置列表里默认允许get镜像，接口在配置列表里则按照配置是否允许镜像
 		if app.NewHost != "" && ((apiInfo == nil && c.Request.Method == "GET") ||

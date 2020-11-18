@@ -10,16 +10,48 @@ import (
 )
 
 // ingoreFields 忽略字段
-var ingoreFields map[string]byte
+var ingoreFields map[string]jsondiff.Code
+
+// DiffResultTypeCodeMap .
+var DiffResultTypeCodeMap = make(map[jsondiff.Code]uint8)
+
+// DiffResultTypeKeyMap .
+var DiffResultTypeKeyMap = make(map[uint8]jsondiff.Code)
+
+func init() {
+	DiffResultTypeCodeMap[jsondiff.KeyNotExists] = 1
+	DiffResultTypeCodeMap[jsondiff.ValueNotEqual] = 2
+	DiffResultTypeCodeMap[jsondiff.ValueTypeNotEqual] = 3
+	DiffResultTypeCodeMap[jsondiff.ValueArrayLengthNotEqual] = 4
+
+	for k, v := range DiffResultTypeCodeMap {
+		DiffResultTypeKeyMap[v] = k
+	}
+}
 
 func init() {
 	//todo 提取到配置中
-	ingoreFields = make(map[string]byte)
-	ingoreFields[".requestid"] = 0
+	ingoreFields = make(map[string]jsondiff.Code)
+	ingoreFields[".requestid"] = jsondiff.ValueNotEqual
+}
+
+// ReLoadDiffStrategy .
+func ReLoadDiffStrategy() {
+	list, err := ListDiffStrategy()
+	if err != nil {
+		log.Err(err).Msg("loadDiffStrategy")
+	}
+	m := make(map[string]jsondiff.Code)
+	for _, item := range list {
+		m[item.Filed] = DiffResultTypeKeyMap[item.Ignore]
+	}
+	// to do lock
+	ingoreFields = m
 }
 
 // Analysis 分析返回结果
 func Analysis() {
+	ReLoadDiffStrategy()
 	pageIndex, pageSize := 1, 100
 	var count int64
 	core.DB.Model(&core.ProxyLog{}).Where("status=1 and old_response_body is not null and old_response_body <> '' and new_response_body is not null and new_response_body <> '' and (analysis_result is null or analysis_result = '')").Count(&count)
