@@ -87,7 +87,7 @@ type ProxyLog struct {
 
 // DiffStrategy 对比策略表
 type DiffStrategy struct {
-	Filed  string `gorm:"type:varchar(255);default:'';not null"` // 字段名 需要与DiffResult里对应
+	Field  string `gorm:"type:varchar(255);default:'';not null"` // 字段名 需要与DiffResult里对应
 	Ignore uint8  `gorm:"default:0;not null;"`                   // 忽略策略 对应 jsondiff.Code KeyNotExists=1 ValueNotEqual=2 ValueTypeNotEqual=3 ValueArrayLengthNotEqual=4
 	// Type   uint8  `gorm:"default:0;not null;"`                   // 0全局策略 1部分策略
 	// Strategy   uint8  `gorm:"default:0;not null;"`                   // 0 完全验证 1部分验证 适用于字符部分匹配（todo）
