@@ -53,7 +53,7 @@ jobs:
           mkdir ./ui/dist
           ls -l ./bin/
           ls -l ./ui/dist/
-          docker build -tag $IMAGE_NAME .
+          docker build -t $IMAGE_NAME .
 
     - name: Log into registry
       run: docker login -u "${{ secrets.DOCKER_USERNAME }}" -p "${{ secrets.DOCKER_PASSWORD }}"
