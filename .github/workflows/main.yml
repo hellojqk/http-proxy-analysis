@@ -28,7 +28,7 @@ jobs:
     - name: Build UI
       run: |
           cd ./ui
-          npm ci
+          npm i
           npm run build
           
     - name: Set up Go 1.x
