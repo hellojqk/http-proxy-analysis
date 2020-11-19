@@ -123,6 +123,28 @@ func Run() {
 		c.JSON(http.StatusOK, list)
 	})
 
+	//获取应用程序数据
+	group.POST("/diff_strategy", func(c *gin.Context) {
+		model := &core.DiffStrategy{}
+		if err := c.ShouldBind(model); err != nil {
+			c.String(http.StatusOK, err.Error())
+			return
+		}
+		service.InsertDiffStrategy(model)
+		c.JSON(http.StatusOK, gin.H{})
+	})
+
+	//获取应用程序数据
+	group.DELETE("/diff_strategy/:id", func(c *gin.Context) {
+		model := &core.DiffStrategy{}
+		if err := c.ShouldBindUri(model); err != nil {
+			c.String(http.StatusOK, err.Error())
+			return
+		}
+		service.DeleteDiffStrategy(model)
+		c.JSON(http.StatusOK, gin.H{})
+	})
+
 	//获取应用程序API数据
 	group.GET("/application/:id/api", func(c *gin.Context) {
 		app := &core.Application{}

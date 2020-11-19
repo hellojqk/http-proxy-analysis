@@ -3,36 +3,19 @@ package service
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/hellojqk/http-proxy-analysis/src/core"
 	"github.com/hellojqk/jsondiff"
 	"github.com/rs/zerolog/log"
 )
 
-// ingoreFields 忽略字段
-var ingoreFields map[string]jsondiff.Code
-
-// DiffResultTypeCodeMap .
-var DiffResultTypeCodeMap = make(map[jsondiff.Code]uint8)
-
-// DiffResultTypeKeyMap .
-var DiffResultTypeKeyMap = make(map[uint8]jsondiff.Code)
-
-func init() {
-	DiffResultTypeCodeMap[jsondiff.KeyNotExists] = 1
-	DiffResultTypeCodeMap[jsondiff.ValueNotEqual] = 2
-	DiffResultTypeCodeMap[jsondiff.ValueTypeNotEqual] = 3
-	DiffResultTypeCodeMap[jsondiff.ValueArrayLengthNotEqual] = 4
-
-	for k, v := range DiffResultTypeCodeMap {
-		DiffResultTypeKeyMap[v] = k
-	}
-}
+// ingoreInfo 忽略字段 0:全局策略 >0为具体APIID策略
+var ingoreInfo map[uint][]core.DiffStrategy
 
 func init() {
 	//todo 提取到配置中
-	ingoreFields = make(map[string]jsondiff.Code)
-	ingoreFields[".requestid"] = jsondiff.ValueNotEqual
+	ingoreInfo = make(map[uint][]core.DiffStrategy)
 }
 
 // ReLoadDiffStrategy .
@@ -41,12 +24,23 @@ func ReLoadDiffStrategy() {
 	if err != nil {
 		log.Err(err).Msg("loadDiffStrategy")
 	}
-	m := make(map[string]jsondiff.Code)
+	m := make(map[uint][]core.DiffStrategy, 1)
+	m[0] = make([]core.DiffStrategy, 0)
 	for _, item := range list {
-		m[item.Field] = DiffResultTypeKeyMap[item.Ignore]
+		if ary := m[item.APIID]; ary == nil {
+			m[item.APIID] = make([]core.DiffStrategy, 0)
+		}
+		m[item.APIID] = append(m[item.APIID], item)
+	}
+
+	for k := range m {
+		if k == 0 {
+			continue
+		}
+		m[k] = append(m[k], m[0]...)
 	}
 	// to do lock
-	ingoreFields = m
+	ingoreInfo = m
 }
 
 // Analysis 分析返回结果
@@ -73,11 +67,27 @@ func Analysis() {
 				}
 				continue
 			}
+
+			ingoreFields, ok := ingoreInfo[proxyLog.APIID]
+			if !ok {
+				ingoreFields = ingoreInfo[0]
+			}
+
 			saveResult := make([]jsondiff.DiffInfo, 0)
 			for _, re := range diffResult {
-				if _, ok := ingoreFields[re.Field]; ok {
+
+				ingore := false
+				for _, ingoreField := range ingoreFields {
+					ingore = strings.Contains(re.Field, ingoreField.Field) && ingoreField.Code == re.Code
+					if ingore {
+						break
+					}
+				}
+
+				if ingore {
 					continue
 				}
+
 				//清除diff不同的详细信息，因为该字段会非常大
 				re.Message = ""
 				saveResult = append(saveResult, re)
