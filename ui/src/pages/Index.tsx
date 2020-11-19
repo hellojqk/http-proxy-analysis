@@ -122,7 +122,7 @@ export default (): React.ReactNode => {
       title: '开始时间',
       width: 200,
       order: 95,
-      dataIndex: 'CreatedAtStart',
+      dataIndex: 'CreatedAtBegin',
       hideInTable: true,
       valueType: 'dateTime'
     },
