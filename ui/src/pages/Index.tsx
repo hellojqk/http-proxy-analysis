@@ -13,19 +13,6 @@ const { Panel } = Collapse;
 
 const { Text } = Typography;
 
-// import { Card, Alert, Typography } from 'antd';
-// import styles from './Index.less';
-
-// const CodePreview: React.FC<{}> = ({ children }) => (
-//   <pre className={styles.pre}>
-//     <code>
-//       <Typography.Text copyable>{children}</Typography.Text>
-//     </code>
-//   </pre>
-// );
-
-
-
 const methodMap = {
   "GET": "blue",
   "POST": "geekblue",
@@ -78,7 +65,7 @@ const AnalysisContent: React.FC<{ dataSource: any, APIID: number }> = ({ dataSou
         })}
         <Text>本次对比差异项</Text>
         {data && data.map((item: DiffStrategy) => {
-          if (diffStrategyList.filter(f => item.Field.indexOf(f.Field) > -1 && f.Code === item.Code).length > 0) {
+          if (diffStrategyList.filter(f => (f.APIID === APIID || f.APIID === 0) && item.Field.indexOf(f.Field) > -1 && f.Code === item.Code).length > 0) {
             return <></>
           }
           const fieldAry = item.Field.split(".")
@@ -119,6 +106,7 @@ export default (): React.ReactNode => {
     {
       title: '应用程序',
       dataIndex: 'ApplicationID',
+      order: 100,
       width: 200,
       render: (_, record) => {
         if (!record.Application) {
@@ -131,8 +119,27 @@ export default (): React.ReactNode => {
       }
     },
     {
+      title: '开始时间',
+      width: 200,
+      order: 95,
+      dataIndex: 'CreatedAtStart',
+      hideInTable: true,
+      valueType: 'dateTime'
+    },
+    {
+      title: '结束时间',
+      width: 200,
+      order: 94,
+      dataIndex: 'CreatedAtEnd',
+      hideInTable: true,
+      valueType: 'dateTime'
+    },
+    {
       title: '路由',
       dataIndex: 'APIID',
+      tooltip: '对应swagger文档上的固定url',
+      order: 99,
+      fixed: 'left',
       render: (_, record) => {
         if (!record.API) {
           return "-";
@@ -226,7 +233,9 @@ export default (): React.ReactNode => {
     {
       title: '旧Url',
       dataIndex: 'OldRequestURL',
-      tooltip: '接口请求路径'
+      tooltip: '接口请求路径',
+      order: 98,
+      copyable: true,
     },
     {
       title: '操作',
@@ -261,7 +270,9 @@ export default (): React.ReactNode => {
         actionRef={actionRef}
         rowKey="ID"
         search={{
-          labelWidth: 120,
+          // labelWidth: 80,
+          span: 4,
+          // defaultCollapsed: false,
         }}
         request={(params, sorter, filter) => queryProxyLog({ ...params, sorter, filter })}
         columns={columns}

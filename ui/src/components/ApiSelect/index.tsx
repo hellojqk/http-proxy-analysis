@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Select, } from 'antd';
 import { queryApplication } from "@/services/application"
+import { Application } from '@/services/API.d';
 
 const ApiSelect = (props: any) => {
   const { form } = props
-  const [applicationList, setApplicationList] = useState<API.Application[]>([])
+  const [applicationList, setApplicationList] = useState<Application[]>([])
   useEffect(() => {
     if (!applicationList || applicationList.length === 0) {
       queryApplication().then(result => {
@@ -17,7 +18,7 @@ const ApiSelect = (props: any) => {
   const apiList: {}[] = [];
   const applicationID = form.getFieldValue("ApplicationID")
   if (applicationID && applicationList) {
-    applicationList.forEach((app: API.Application) => {
+    applicationList.forEach((app: Application) => {
       if (app.ID === applicationID && app.APIs) {
         app.APIs.forEach(api => {
           if (api.GET) {
@@ -39,7 +40,7 @@ const ApiSelect = (props: any) => {
       }
     })
   }
-  return <Select {...props} filterOption={(input, option: { label: string }) => {
+  return <Select {...props} dropdownMatchSelectWidth={false} allowClear filterOption={(input, option: { label: string }) => {
     return option && option.label && option.label.toLowerCase().indexOf(input.toLowerCase()) >= 0
   }} showSearch options={apiList} />
 }

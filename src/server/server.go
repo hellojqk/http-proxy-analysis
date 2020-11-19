@@ -189,7 +189,7 @@ func logResponseBody(app *core.Application) gin.HandlerFunc {
 		}
 		proxyLog.OldRequestHeader = string(requestHeaderBts)
 
-		oldBeginTime := time.Now().Unix()
+		oldBeginTime := time.Now().UnixNano()
 		c.Next()
 		proxyLog.OldResponseStatus = c.Writer.Status()
 		responseHeaderBts, err := json.Marshal(c.Writer.Header())
@@ -211,7 +211,7 @@ func logResponseBody(app *core.Application) gin.HandlerFunc {
 		default:
 			proxyLog.OldResponseBody = w.body.String()
 		}
-		proxyLog.OldDuration = time.Now().Unix() - oldBeginTime
+		proxyLog.OldDuration = (time.Now().UnixNano() - oldBeginTime) / 1e6
 
 		//配置了新的站点，接口不在配置列表里默认允许get镜像，接口在配置列表里则按照配置是否允许镜像
 		if app.NewHost != "" && ((apiInfo == nil && c.Request.Method == "GET") ||
@@ -226,14 +226,14 @@ func logResponseBody(app *core.Application) gin.HandlerFunc {
 				log.Err(err).Msg("http.NewRequest")
 			}
 			newRequest.Header = c.Request.Header
-			newBeginTime := time.Now().Unix()
+			newBeginTime := time.Now().UnixNano()
 			//发送镜像请求
 			newResponse, err := cli.Do(newRequest)
 			if err != nil {
 				log.Err(err).Msg("cli.Do(newRequest)")
 			}
 			if newResponse != nil {
-				proxyLog.NewDuration = time.Now().Unix() - newBeginTime
+				proxyLog.NewDuration = (time.Now().UnixNano() - newBeginTime) / 1e6
 				proxyLog.NewResponseStatus = newResponse.StatusCode
 				newResponseHeaderBts, err := json.Marshal(newResponse.Header)
 				proxyLog.NewResponseHeader = string(newResponseHeaderBts)
