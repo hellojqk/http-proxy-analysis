@@ -1,12 +1,17 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { PageContainer } from '@ant-design/pro-layout';
 import ProTable, { ActionType, ProColumns } from '@ant-design/pro-table';
-import { Collapse, Divider, message, Tag } from 'antd';
+import { Collapse, Divider, message, Tag, Typography, Table, Space } from 'antd';
 import { queryProxyLog, retryProxyLog } from '@/services/proxyLog';
 import ApplicationSelect from '@/components/ApplicationSelect';
 import ApiSelect from '@/components/ApiSelect';
+import { deleteDiffStrategy, insertDiffStrategy, queryDiffStrategyList } from '@/services/diffstrategy';
+
+import { DiffStrategy, ProxyLog } from '@/services/API.d';
 
 const { Panel } = Collapse;
+
+const { Text } = Typography;
 
 // import { Card, Alert, Typography } from 'antd';
 // import styles from './Index.less';
@@ -29,10 +34,83 @@ const methodMap = {
   "DELETE": "gold",
 }
 
+const AnalysisContent: React.FC<{ dataSource: any, APIID: number }> = ({ dataSource, APIID }) => {
+  const [diffStrategyList, setDiffStrategyList] = useState<DiffStrategy[]>([])
+  const loadDiffStrategy = () => {
+    queryDiffStrategyList().then((result: DiffStrategy[]) => {
+      setDiffStrategyList(result)
+    })
+  }
+  useEffect(() => {
+    if (!diffStrategyList || diffStrategyList.length === 0) {
+      queryDiffStrategyList().then(result => {
+        setDiffStrategyList(result)
+      })
+    }
+  }, [])
+
+  try {
+    let data = []
+    if (dataSource) {
+      data = JSON.parse(dataSource)
+    }
+    return (<>
+      <Space direction="vertical">
+        <Text>已采用忽略规则</Text>
+        {diffStrategyList.filter(f => f.APIID === 0 || f.APIID === APIID).map((item) => {
+          return (<Space>
+            <Space style={{ width: 300 }}>{item.Field}</Space>
+            <Space style={{ width: 300 }}>{item.Code}</Space>
+            <Space style={{ width: 300 }}>
+              <a target="_blank" rel="noreferrer" onClick={async () => {
+                try {
+                  await deleteDiffStrategy(item.ID);
+                  message.success('成功');
+                  loadDiffStrategy()
+                  return true;
+                } catch (error) {
+                  message.error('失败');
+                  return false;
+                }
+              }}>禁用忽略</a>
+            </Space>
+          </Space>)
+        })}
+        <Text>本次对比差异项</Text>
+        {data && data.map((item: DiffStrategy) => {
+          if (diffStrategyList.filter(f => item.Field.indexOf(f.Field) > -1 && f.Code === item.Code).length > 0) {
+            return <></>
+          }
+          const fieldAry = item.Field.split(".")
+          return (<Space>
+            <Space style={{ width: 300 }}>{item.Field}</Space>
+            <Space style={{ width: 300 }}>{item.Code}</Space>
+            <Space style={{ width: 300 }}>
+              <a onClick={async () => {
+                try {
+                  await insertDiffStrategy({ Field: `.${fieldAry[fieldAry.length - 1]}`, Code: item.Code, APIID });
+                  message.success('成功');
+                  loadDiffStrategy()
+                  return true;
+                } catch (error) {
+                  message.error('失败');
+                  return false;
+                }
+              }}>忽略【.{fieldAry[fieldAry.length - 1]}】部分差异</a>
+            </Space>
+          </Space>)
+        })}
+      </Space>
+    </>)
+  } catch (error) {
+    return <p>{dataSource}</p>
+  }
+}
+
 export default (): React.ReactNode => {
   const actionRef = useRef<ActionType>();
 
-  const columns: ProColumns<API.ProxyLog>[] = [
+  const columns: ProColumns<ProxyLog>[] = [
     {
       title: '编号',
       dataIndex: 'ID',
@@ -48,7 +126,7 @@ export default (): React.ReactNode => {
         }
         return <>{record.Application.Name}</>
       },
-      renderFormItem: (item, config, form) => {
+      renderFormItem: (item, config) => {
         return <ApplicationSelect {...config} />
       }
     },
@@ -156,7 +234,7 @@ export default (): React.ReactNode => {
       valueType: 'option',
       fixed: 'right',
       width: 100,
-      render: (_, record) => (
+      render: (_, record: ProxyLog) => (
         <>
           <a target="_blank" rel="noreferrer" href={`/proxylog/${record.ID}`}>对比</a>
           <Divider type="vertical" />
@@ -177,7 +255,7 @@ export default (): React.ReactNode => {
 
   return (
     <PageContainer pageHeaderRender={false}>
-      <ProTable<API.ProxyLog>
+      <ProTable<ProxyLog>
         headerTitle="代理日志"
         scroll={{ x: 2500 }}
         actionRef={actionRef}
@@ -191,7 +269,7 @@ export default (): React.ReactNode => {
           rowExpandable: () => true,
           expandedRowRender: record => <Collapse defaultActiveKey={['1', '2', '3', '4', '5', '6', '7', '8']}>
             <Panel header="后端简要分析结果" key="1">
-              <p>{record.AnalysisResult}</p>
+              <AnalysisContent dataSource={record.AnalysisResult} APIID={record.APIID} />
             </Panel>
             <Panel header="请求路径" key="2">
               <p>{record.Application ? record.Application.OldHost + record.OldRequestURL : record.OldRequestURL}</p>
