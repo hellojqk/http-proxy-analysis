@@ -22,12 +22,12 @@ func ListProxyLog(pageParam *model.ProxyLogListRequestParam) (result []core.Prox
 
 	db := core.DB.Debug().Model(&core.ProxyLog{}).Where(pageParam.ProxyLog)
 
-	if pageParam.CreateAtBegin != "" {
-		db = db.Where("create_at >= ?", pageParam.CreateAtBegin)
+	if pageParam.CreatedAtBegin != "" {
+		db = db.Where("created_at >= ?", pageParam.CreatedAtBegin)
 	}
 
-	if pageParam.CreateAtEnd != "" {
-		db = db.Where("create_at < ?", pageParam.CreateAtEnd)
+	if pageParam.CreatedAtEnd != "" {
+		db = db.Where("created_at < ?", pageParam.CreatedAtEnd)
 	}
 
 	if oldRequestURL != "" {

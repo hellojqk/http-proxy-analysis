@@ -16,6 +16,6 @@ type PageParam struct {
 type ProxyLogListRequestParam struct {
 	PageParam
 	core.ProxyLog
-	CreateAtBegin string
-	CreateAtEnd   string
+	CreatedAtBegin string
+	CreatedAtEnd   string
 }

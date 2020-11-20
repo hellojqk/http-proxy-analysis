@@ -44,6 +44,7 @@ export interface Model {
 
 export interface Application extends Model {
   Name: string;
+  Host: string;
   OldHost: string;
   NewHost: string;
   Status: boolean;

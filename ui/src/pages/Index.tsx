@@ -219,6 +219,8 @@ export default (): React.ReactNode => {
       render: (_, record) => {
         if (record.AnalysisDiffCount > 0) {
           return <Tag color="red">{record.AnalysisDiffCount}</Tag>
+        } if (!record.NewResponseBody) {
+          return <>-</>
         }
         return <Tag color="green">{record.AnalysisDiffCount}</Tag>;
       },
@@ -283,7 +285,9 @@ export default (): React.ReactNode => {
               <AnalysisContent dataSource={record.AnalysisResult} APIID={record.APIID} />
             </Panel>
             <Panel header="请求路径" key="2">
+              <p>{record.Application ? record.Application.Host + record.OldRequestURL : record.OldRequestURL}</p>
               <p>{record.Application ? record.Application.OldHost + record.OldRequestURL : record.OldRequestURL}</p>
+              <p>{record.Application ? record.Application.NewHost + record.OldRequestURL : record.OldRequestURL}</p>
             </Panel>
             <Panel header="请求头部信息" key="3">
               <p>{record.OldRequestHeader}</p>

@@ -15,7 +15,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/hellojqk/http-proxy-analysis/src/core"
 	"github.com/hellojqk/http-proxy-analysis/src/service"
-	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
 )
@@ -38,16 +37,23 @@ func (r responseBodyWriter) WriteString(s string) (n int, err error) {
 // Run .
 func Run(appName string) {
 	core.InitConn()
+	var err error
 
-	app, err := service.GetAPP(appName)
-
-	if err != nil {
-		panic(errors.Wrap(err, "cant find app"))
+	application, err = service.GetAPP(appName)
+	if err != nil || application == nil {
+		panic(err)
 	}
 
+	go func() {
+		for {
+			ReloadAPIInfo(appName)
+			time.Sleep(time.Second * 10)
+		}
+	}()
+
 	g := gin.Default()
-	g.Use(logResponseBody(app))
-	oldHost, _ := url.Parse(app.OldHost)
+	g.Use(logResponseBody())
+	oldHost, _ := url.Parse(application.OldHost)
 	proxy := httputil.NewSingleHostReverseProxy(oldHost)
 	// proxy.Transport = &http.Transport{
 	// 	Proxy: func(*http.Request) (*url.URL, error) {
@@ -57,7 +63,7 @@ func Run(appName string) {
 	// 		InsecureSkipVerify: true, // 忽略证书验证
 	// 	},
 	// }
-	host := strings.ReplaceAll(app.OldHost, "https://", "")
+	host := strings.ReplaceAll(application.OldHost, "https://", "")
 	host = strings.ReplaceAll(host, "http://", "")
 	host = strings.TrimRight(host, "/")
 	var handlerFunc = func(c *gin.Context) {
@@ -149,8 +155,22 @@ func matchURL(apiInfoMap map[string]*core.API, restfulURLMap map[string][]string
 
 var cli = http.DefaultClient
 
+var application *core.Application
+var apiInfoMap map[string]*core.API
+var restfulURLMap map[string][]string
+
+// ReloadAPIInfo 重新加载API信息
+func ReloadAPIInfo(appName string) {
+	app, err := service.GetAPP(appName)
+	if err != nil || app == nil {
+		return
+	}
+	application = app
+	apiInfoMap, restfulURLMap = getURLInfo(app)
+}
+
 // logResponseBody 记录应用访问信息
-func logResponseBody(app *core.Application) gin.HandlerFunc {
+func logResponseBody() gin.HandlerFunc {
 
 	return func(c *gin.Context) {
 		//swagger文档地址则跳过处理
@@ -158,18 +178,44 @@ func logResponseBody(app *core.Application) gin.HandlerFunc {
 			c.Next()
 			return
 		}
-		apiInfoMap, restfulURLMap := getURLInfo(app)
 		apiInfo := matchURL(apiInfoMap, restfulURLMap, c.Request.RequestURI)
-
 		w := &responseBodyWriter{body: &bytes.Buffer{}, ResponseWriter: c.Writer}
 		c.Writer = w
 
 		proxyLog := &core.ProxyLog{
-			ApplicationID:    app.ID,
+			ApplicationID:    application.ID,
 			OldRequestMethod: c.Request.Method,
 			Status:           true,
 		}
 		if apiInfo != nil {
+			//如果是配置的API，那么没有支持的接口不进行代理日志处理，这样是为了屏蔽部分接口大量调用导致数据过多
+			switch c.Request.Method {
+			case "GET":
+				if !apiInfo.GET {
+					c.Next()
+					return
+				}
+			case "POST":
+				if !apiInfo.POST {
+					c.Next()
+					return
+				}
+			case "PUT":
+				if !apiInfo.PUT {
+					c.Next()
+					return
+				}
+			case "PATCH":
+				if !apiInfo.PATCH {
+					c.Next()
+					return
+				}
+			case "DELETE":
+				if !apiInfo.DELETE {
+					c.Next()
+					return
+				}
+			}
 			proxyLog.APIID = apiInfo.ID
 		}
 
@@ -214,14 +260,14 @@ func logResponseBody(app *core.Application) gin.HandlerFunc {
 		proxyLog.OldDuration = (time.Now().UnixNano() - oldBeginTime) / 1e6
 
 		//配置了新的站点，接口不在配置列表里默认允许get镜像，接口在配置列表里则按照配置是否允许镜像
-		if app.NewHost != "" && ((apiInfo == nil && c.Request.Method == "GET") ||
+		if application.NewHost != "" && ((apiInfo == nil && c.Request.Method == "GET") ||
 			(apiInfo != nil &&
 				((c.Request.Method == "GET" && apiInfo.GETAllowMirror) ||
 					(c.Request.Method == "POST" && apiInfo.POSTAllowMirror) ||
 					(c.Request.Method == "PUT" && apiInfo.PUTAllowMirror) ||
 					(c.Request.Method == "PATCH" && apiInfo.PATCHAllowMirror) ||
 					(c.Request.Method == "DELETE" && apiInfo.DELETEAllowMirror)))) {
-			newRequest, err := http.NewRequest(c.Request.Method, app.NewHost+c.Request.RequestURI, bytes.NewReader(requestData))
+			newRequest, err := http.NewRequest(c.Request.Method, application.NewHost+c.Request.RequestURI, bytes.NewReader(requestData))
 			if err != nil {
 				log.Err(err).Msg("http.NewRequest")
 			}
