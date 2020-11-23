@@ -16,8 +16,9 @@ limitations under the License.
 package cmd
 
 import (
-	"github.com/hellojqk/http-proxy-analysis/src/core"
+	"github.com/hellojqk/http-proxy-analysis/src/entity"
 	"github.com/hellojqk/http-proxy-analysis/src/model"
+	"github.com/hellojqk/http-proxy-analysis/src/repository"
 	"github.com/hellojqk/http-proxy-analysis/src/service"
 	"github.com/spf13/cobra"
 )
@@ -28,8 +29,8 @@ var getProxyLogCmd = &cobra.Command{
 	Short: "代理日志",
 	Long:  `代理日志`,
 	Run: func(cmd *cobra.Command, args []string) {
-		core.InitConn()
-		service.ListProxyLog(&model.ProxyLogListRequestParam{ProxyLog: core.ProxyLog{
+		repository.InitConn()
+		service.ListProxyLog(&model.ProxyLogListRequestParam{ProxyLog: entity.ProxyLog{
 			OldRequestURL: "cost",
 		}, PageParam: model.PageParam{PageSize: 10}})
 	},

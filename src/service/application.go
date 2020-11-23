@@ -5,7 +5,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/hellojqk/http-proxy-analysis/src/core"
+	"github.com/hellojqk/http-proxy-analysis/src/entity"
+	"github.com/hellojqk/http-proxy-analysis/src/repository"
 	"github.com/hellojqk/http-proxy-analysis/src/util"
 	"github.com/pterm/pterm"
 	"github.com/rs/zerolog/log"
@@ -18,28 +19,28 @@ func CreateAPP(appName string, oldHost string, newHost string) (err error) {
 		err = errors.New("appName or oldHost is null")
 		return
 	}
-	core.InitConn()
+	repository.InitConn()
 
 	oldHost = strings.TrimRight(oldHost, "/")
 	newHost = strings.TrimRight(newHost, "/")
 
-	var app = &core.Application{
+	var app = &entity.Application{
 		Name:    appName,
 		OldHost: oldHost,
 		NewHost: newHost,
 	}
 	app.Status = true
-	err = core.DB.Where(&core.Application{Name: appName}).FirstOrCreate(app).Error
+	err = repository.DB.Where(&entity.Application{Name: appName}).FirstOrCreate(app).Error
 	return
 }
 
 var appHeader = []string{"APP_NAME", "OLD_HOST", "NEW_HOST", "STATUS", "CREATE_TIME"}
 
 // TermShowListAPP 获取应用列表
-func TermShowListAPP() (result []core.Application) {
-	core.InitConn()
-	result = make([]core.Application, 0, 1)
-	err := core.DB.Find(&result).Error
+func TermShowListAPP() (result []entity.Application) {
+	repository.InitConn()
+	result = make([]entity.Application, 0, 1)
+	err := repository.DB.Find(&result).Error
 	if err != nil {
 		log.Err(err).Msg("list app")
 		return
@@ -56,9 +57,9 @@ func TermShowListAPP() (result []core.Application) {
 }
 
 // ListAPP .
-func ListAPP(containAPIInfo bool) (result []core.Application, err error) {
-	result = make([]core.Application, 0, 1)
-	db := core.DB
+func ListAPP(containAPIInfo bool) (result []entity.Application, err error) {
+	result = make([]entity.Application, 0, 1)
+	db := repository.DB
 	if containAPIInfo {
 		db = db.Preload("APIs")
 	}
@@ -71,9 +72,9 @@ func ListAPP(containAPIInfo bool) (result []core.Application, err error) {
 }
 
 // GetAPP 获取应用信息
-func GetAPP(appName string) (*core.Application, error) {
-	var app = &core.Application{Name: appName}
-	err := core.DB.Where(&core.Application{Name: appName}).Preload("APIs").First(app).Error
+func GetAPP(appName string) (*entity.Application, error) {
+	var app = &entity.Application{Name: appName}
+	err := repository.DB.Where(&entity.Application{Name: appName}).Preload("APIs").First(app).Error
 	if err != nil {
 		return nil, err
 	}

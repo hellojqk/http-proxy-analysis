@@ -13,7 +13,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hellojqk/http-proxy-analysis/src/core"
+	"github.com/hellojqk/http-proxy-analysis/src/entity"
+	"github.com/hellojqk/http-proxy-analysis/src/repository"
 	"github.com/hellojqk/http-proxy-analysis/src/service"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
@@ -36,7 +37,7 @@ func (r responseBodyWriter) WriteString(s string) (n int, err error) {
 
 // Run .
 func Run(appName string) {
-	core.InitConn()
+	repository.InitConn()
 	var err error
 
 	application, err = service.GetAPP(appName)
@@ -89,8 +90,8 @@ func parseAry(url string) []string {
 }
 
 // getURLInfo
-func getURLInfo(app *core.Application) (map[string]*core.API, map[string][]string) {
-	var apiInfoMap = make(map[string]*core.API, len(app.APIs))
+func getURLInfo(app *entity.Application) (map[string]*entity.API, map[string][]string) {
+	var apiInfoMap = make(map[string]*entity.API, len(app.APIs))
 	var restfulURLMap = make(map[string][]string, len(app.APIs))
 	for _, api := range app.APIs {
 		lowURL := strings.ToLower(api.URL)
@@ -101,7 +102,7 @@ func getURLInfo(app *core.Application) (map[string]*core.API, map[string][]strin
 }
 
 // matchURL 匹配URL对应的api id
-func matchURL(apiInfoMap map[string]*core.API, restfulURLMap map[string][]string, requestURL string) *core.API {
+func matchURL(apiInfoMap map[string]*entity.API, restfulURLMap map[string][]string, requestURL string) *entity.API {
 	url, err := url.ParseRequestURI(requestURL)
 	if err != nil {
 		log.Err(err).Msg("url.ParseRequestURI")
@@ -155,8 +156,8 @@ func matchURL(apiInfoMap map[string]*core.API, restfulURLMap map[string][]string
 
 var cli = http.DefaultClient
 
-var application *core.Application
-var apiInfoMap map[string]*core.API
+var application *entity.Application
+var apiInfoMap map[string]*entity.API
 var restfulURLMap map[string][]string
 
 // ReloadAPIInfo 重新加载API信息
@@ -182,7 +183,7 @@ func logResponseBody() gin.HandlerFunc {
 		w := &responseBodyWriter{body: &bytes.Buffer{}, ResponseWriter: c.Writer}
 		c.Writer = w
 
-		proxyLog := &core.ProxyLog{
+		proxyLog := &entity.ProxyLog{
 			ApplicationID:    application.ID,
 			OldRequestMethod: c.Request.Method,
 			Status:           true,

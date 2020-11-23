@@ -7,7 +7,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/hellojqk/http-proxy-analysis/src/core"
+	"github.com/hellojqk/http-proxy-analysis/src/entity"
+	"github.com/hellojqk/http-proxy-analysis/src/repository"
 	"github.com/hellojqk/http-proxy-analysis/src/util"
 	"github.com/pterm/pterm"
 	"github.com/rs/zerolog/log"
@@ -16,10 +17,10 @@ import (
 
 // ImportSwaggerDoc 导入swagger文档
 func ImportSwaggerDoc(appName string, url string) {
-	core.InitConn()
+	repository.InitConn()
 
-	var app = &core.Application{}
-	err := core.DB.Where(&core.Application{Name: appName}).First(app).Error
+	var app = &entity.Application{}
+	err := repository.DB.Where(&entity.Application{Name: appName}).First(app).Error
 	if err != nil {
 		log.Err(err).Msg("app not exists")
 		return
@@ -58,8 +59,8 @@ func ImportSwaggerDoc(appName string, url string) {
 		}
 		methodMap := pathItem.(map[string]interface{})
 
-		api := core.API{ApplicationID: app.ID, URL: basePathStr + path}
-		err := core.DB.Where(&api).First(&api).Error
+		api := entity.API{ApplicationID: app.ID, URL: basePathStr + path}
+		err := repository.DB.Where(&api).First(&api).Error
 		if err != nil && err != gorm.ErrRecordNotFound {
 			log.Err(err).Msg("find api error")
 			continue
@@ -94,7 +95,7 @@ func ImportSwaggerDoc(appName string, url string) {
 		if api.ID == 0 {
 			api.Status = true
 		}
-		err = core.DB.Save(&api).Error
+		err = repository.DB.Save(&api).Error
 		if err != nil {
 			log.Err(err).Msg("api create error")
 			continue
@@ -105,10 +106,10 @@ func ImportSwaggerDoc(appName string, url string) {
 var apiHeader = []string{"APP_NAME", "URL", "GET", "POST", "PUT", "PATCH", "DELETE", "Status", "CreatedAt"}
 
 // TermShowAPI 获取API列表
-func TermShowAPI() (result []core.API) {
-	core.InitConn()
-	result = make([]core.API, 0, 1)
-	err := core.DB.Preload("Application").Find(&result).Error
+func TermShowAPI() (result []entity.API) {
+	repository.InitConn()
+	result = make([]entity.API, 0, 1)
+	err := repository.DB.Preload("Application").Find(&result).Error
 	if err != nil {
 		log.Err(err).Msg("list app")
 		return
@@ -125,9 +126,9 @@ func TermShowAPI() (result []core.API) {
 }
 
 // ListAPI 获取API列表
-func ListAPI(applicationID uint) (result []core.API, err error) {
-	result = make([]core.API, 0, 1)
-	err = core.DB.Where(&core.API{ApplicationID: applicationID}).Find(&result).Error
+func ListAPI(applicationID uint) (result []entity.API, err error) {
+	result = make([]entity.API, 0, 1)
+	err = repository.DB.Where(&entity.API{ApplicationID: applicationID}).Find(&result).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		log.Err(err).Msg("ListAPI")
 		return
@@ -137,7 +138,7 @@ func ListAPI(applicationID uint) (result []core.API, err error) {
 
 //UpdateAPI API更新
 func UpdateAPI(id uint, columns map[string]interface{}) (err error) {
-	err = core.DB.Model(&core.API{}).Where(&core.API{Model: core.Model{ID: id}}).
+	err = repository.DB.Model(&entity.API{}).Where(&entity.API{Model: entity.Model{ID: id}}).
 		UpdateColumns(columns).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		log.Err(err).Msg("UpdateAPI")

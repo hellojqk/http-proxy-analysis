@@ -1,8 +1,6 @@
 package model
 
-import (
-	"github.com/hellojqk/http-proxy-analysis/src/core"
-)
+import "github.com/hellojqk/http-proxy-analysis/src/entity"
 
 // PageParam 分页参数
 type PageParam struct {
@@ -15,7 +13,7 @@ type PageParam struct {
 // ProxyLogListRequestParam .
 type ProxyLogListRequestParam struct {
 	PageParam
-	core.ProxyLog
+	entity.ProxyLog
 	CreatedAtBegin string
 	CreatedAtEnd   string
 }

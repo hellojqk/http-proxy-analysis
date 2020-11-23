@@ -5,17 +5,18 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/hellojqk/http-proxy-analysis/src/core"
+	"github.com/hellojqk/http-proxy-analysis/src/entity"
+	"github.com/hellojqk/http-proxy-analysis/src/repository"
 	"github.com/hellojqk/jsondiff"
 	"github.com/rs/zerolog/log"
 )
 
 // ingoreInfo 忽略字段 0:全局策略 >0为具体APIID策略
-var ingoreInfo map[uint][]core.DiffStrategy
+var ingoreInfo map[uint][]entity.DiffStrategy
 
 func init() {
 	//todo 提取到配置中
-	ingoreInfo = make(map[uint][]core.DiffStrategy)
+	ingoreInfo = make(map[uint][]entity.DiffStrategy)
 }
 
 // ReLoadDiffStrategy .
@@ -24,11 +25,11 @@ func ReLoadDiffStrategy() {
 	if err != nil {
 		log.Err(err).Msg("loadDiffStrategy")
 	}
-	m := make(map[uint][]core.DiffStrategy, 1)
-	m[0] = make([]core.DiffStrategy, 0)
+	m := make(map[uint][]entity.DiffStrategy, 1)
+	m[0] = make([]entity.DiffStrategy, 0)
 	for _, item := range list {
 		if ary := m[item.APIID]; ary == nil {
-			m[item.APIID] = make([]core.DiffStrategy, 0)
+			m[item.APIID] = make([]entity.DiffStrategy, 0)
 		}
 		m[item.APIID] = append(m[item.APIID], item)
 	}
@@ -48,12 +49,12 @@ func Analysis() {
 	ReLoadDiffStrategy()
 	pageIndex, pageSize := 1, 100
 	var count int64
-	core.DB.Model(&core.ProxyLog{}).Where("status=1 and old_response_body is not null and old_response_body <> '' and new_response_body is not null and new_response_body <> '' and (analysis_result is null or analysis_result = '')").Count(&count)
+	repository.DB.Model(&entity.ProxyLog{}).Where("status=1 and old_response_body is not null and old_response_body <> '' and new_response_body is not null and new_response_body <> '' and (analysis_result is null or analysis_result = '')").Count(&count)
 	fmt.Printf("Analysis总计:%d\n", count)
 
 	for (pageIndex-1)*pageSize < int(count) {
-		result := make([]core.ProxyLog, 0, 10)
-		err := core.DB.Where("status=1 and old_response_body is not null and old_response_body <> '' and new_response_body is not null and new_response_body <> '' and (analysis_result is null or analysis_result = '')").Order("id asc").Limit(pageSize).Offset((pageIndex - 1) * pageSize).Find(&result).Error
+		result := make([]entity.ProxyLog, 0, 10)
+		err := repository.DB.Where("status=1 and old_response_body is not null and old_response_body <> '' and new_response_body is not null and new_response_body <> '' and (analysis_result is null or analysis_result = '')").Order("id asc").Limit(pageSize).Offset((pageIndex - 1) * pageSize).Find(&result).Error
 		if err != nil {
 			log.Err(err).Msg("DB.Raw")
 		}
@@ -61,7 +62,7 @@ func Analysis() {
 			diffResult, err := jsondiff.Diff(proxyLog.OldResponseBody, proxyLog.NewResponseBody, true)
 			if err != nil {
 				log.Err(err).Uint("ProxyLogID", proxyLog.ID).Msg("jsondiff.Diff")
-				err = core.DB.Model(&core.ProxyLog{}).Where(&core.ProxyLog{Model: core.Model{ID: proxyLog.ID}}).UpdateColumn("status", 0).Error
+				err = repository.DB.Model(&entity.ProxyLog{}).Where(&entity.ProxyLog{Model: entity.Model{ID: proxyLog.ID}}).UpdateColumn("status", 0).Error
 				if err != nil {
 					log.Err(err).Uint("ProxyLogID", proxyLog.ID).Msg("jsondiff.Diff update status")
 				}
@@ -94,7 +95,7 @@ func Analysis() {
 			}
 			diffResultBts, _ := json.Marshal(saveResult)
 			fmt.Printf("diffResultBts:%d\t%d\n", proxyLog.ID, len(saveResult))
-			core.DB.Model(&core.ProxyLog{}).Where(&core.ProxyLog{Model: core.Model{ID: proxyLog.ID}}).UpdateColumns(map[string]interface{}{"analysis_result": string(diffResultBts), "analysis_diff_count": len(saveResult)})
+			repository.DB.Model(&entity.ProxyLog{}).Where(&entity.ProxyLog{Model: entity.Model{ID: proxyLog.ID}}).UpdateColumns(map[string]interface{}{"analysis_result": string(diffResultBts), "analysis_diff_count": len(saveResult)})
 		}
 		pageIndex++
 	}

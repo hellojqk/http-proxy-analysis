@@ -16,7 +16,7 @@ limitations under the License.
 package cmd
 
 import (
-	"github.com/hellojqk/http-proxy-analysis/src/core"
+	"github.com/hellojqk/http-proxy-analysis/src/repository"
 	"github.com/hellojqk/http-proxy-analysis/src/service"
 	"github.com/spf13/cobra"
 )
@@ -28,7 +28,7 @@ var runAnalysisCmd = &cobra.Command{
 	Short:   "分析",
 	Long:    `运行分析命令`,
 	Run: func(cmd *cobra.Command, args []string) {
-		core.InitConn()
+		repository.InitConn()
 		service.Analysis()
 	},
 }

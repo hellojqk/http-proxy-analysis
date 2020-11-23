@@ -9,8 +9,9 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hellojqk/http-proxy-analysis/src/core"
+	"github.com/hellojqk/http-proxy-analysis/src/entity"
 	"github.com/hellojqk/http-proxy-analysis/src/model"
+	"github.com/hellojqk/http-proxy-analysis/src/repository"
 	"github.com/hellojqk/http-proxy-analysis/src/service"
 	"github.com/spf13/viper"
 )
@@ -19,7 +20,7 @@ var cli = http.Client{}
 
 // Run .
 func Run() {
-	core.InitConn()
+	repository.InitConn()
 
 	go func() {
 		for {
@@ -35,7 +36,7 @@ func Run() {
 	g.LoadHTMLGlob("./assets/templates/*")
 	//查看详情
 	g.GET("/proxylog/:id", func(c *gin.Context) {
-		proxyLog := &core.ProxyLog{}
+		proxyLog := &entity.ProxyLog{}
 		if err := c.ShouldBindUri(proxyLog); err != nil {
 			c.String(http.StatusOK, err.Error())
 			return
@@ -70,7 +71,7 @@ func Run() {
 
 	//重新请求
 	group.POST("/proxylog/:id/retry", func(c *gin.Context) {
-		proxyLog := &core.ProxyLog{}
+		proxyLog := &entity.ProxyLog{}
 		if err := c.ShouldBindUri(proxyLog); err != nil {
 			c.String(http.StatusOK, err.Error())
 			return
@@ -125,7 +126,7 @@ func Run() {
 
 	//获取应用程序数据
 	group.POST("/diff_strategy", func(c *gin.Context) {
-		model := &core.DiffStrategy{}
+		model := &entity.DiffStrategy{}
 		if err := c.ShouldBind(model); err != nil {
 			c.String(http.StatusOK, err.Error())
 			return
@@ -136,7 +137,7 @@ func Run() {
 
 	//获取应用程序数据
 	group.DELETE("/diff_strategy/:id", func(c *gin.Context) {
-		model := &core.DiffStrategy{}
+		model := &entity.DiffStrategy{}
 		if err := c.ShouldBindUri(model); err != nil {
 			c.String(http.StatusOK, err.Error())
 			return
@@ -147,7 +148,7 @@ func Run() {
 
 	//获取应用程序API数据
 	group.GET("/application/:id/api", func(c *gin.Context) {
-		app := &core.Application{}
+		app := &entity.Application{}
 		if err := c.ShouldBindUri(app); err != nil {
 			c.String(http.StatusOK, err.Error())
 			return
@@ -162,7 +163,7 @@ func Run() {
 
 	// api字段部分更新
 	group.PATCH("/api/:id", func(c *gin.Context) {
-		model := &core.API{}
+		model := &entity.API{}
 		if err := c.ShouldBindUri(model); err != nil {
 			c.String(http.StatusOK, err.Error())
 			return

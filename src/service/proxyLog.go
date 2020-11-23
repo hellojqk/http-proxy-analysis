@@ -1,26 +1,27 @@
 package service
 
 import (
-	"github.com/hellojqk/http-proxy-analysis/src/core"
+	"github.com/hellojqk/http-proxy-analysis/src/entity"
 	"github.com/hellojqk/http-proxy-analysis/src/model"
+	"github.com/hellojqk/http-proxy-analysis/src/repository"
 )
 
 // InsertProwyLog .
-func InsertProwyLog(proxyLog *core.ProxyLog) (bool, error) {
-	insertResult := core.DB.Create(proxyLog)
+func InsertProwyLog(proxyLog *entity.ProxyLog) (bool, error) {
+	insertResult := repository.DB.Create(proxyLog)
 	return insertResult.RowsAffected > 0, insertResult.Error
 }
 
 // ListProxyLog .
-func ListProxyLog(pageParam *model.ProxyLogListRequestParam) (result []core.ProxyLog, total int64, err error) {
-	result = make([]core.ProxyLog, 0)
+func ListProxyLog(pageParam *model.ProxyLogListRequestParam) (result []entity.ProxyLog, total int64, err error) {
+	result = make([]entity.ProxyLog, 0)
 	oldRequestURL := pageParam.OldRequestURL
 
 	if oldRequestURL != "" {
 		pageParam.OldRequestURL = ""
 	}
 
-	db := core.DB.Debug().Model(&core.ProxyLog{}).Where(pageParam.ProxyLog)
+	db := repository.DB.Debug().Model(&entity.ProxyLog{}).Where(pageParam.ProxyLog)
 
 	if pageParam.CreatedAtBegin != "" {
 		db = db.Where("created_at >= ?", pageParam.CreatedAtBegin)
@@ -43,6 +44,6 @@ func ListProxyLog(pageParam *model.ProxyLogListRequestParam) (result []core.Prox
 }
 
 // GetProxyLog .
-func GetProxyLog(proxyLog *core.ProxyLog) error {
-	return core.DB.Preload("Application").Preload("API").First(proxyLog, proxyLog.ID).Error
+func GetProxyLog(proxyLog *entity.ProxyLog) error {
+	return repository.DB.Preload("Application").Preload("API").First(proxyLog, proxyLog.ID).Error
 }

@@ -18,7 +18,7 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/hellojqk/http-proxy-analysis/src/core"
+	"github.com/hellojqk/http-proxy-analysis/src/repository"
 	"github.com/spf13/cobra"
 )
 
@@ -30,7 +30,7 @@ var installDBCmd = &cobra.Command{
 	Long:    `数据库初始化`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("db called")
-		core.InitTable()
+		repository.InitTable()
 	},
 }
 
