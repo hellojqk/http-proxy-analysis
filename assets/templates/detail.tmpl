@@ -18,7 +18,7 @@
   <div style="height:20px;margin:4px 0px 0px 4px;">ID：{{.proxyLog.ID}}</div>
   <div style="height:20px;margin:4px 0px 0px 4px;">RestfulURL：{{if .proxyLog.API}}{{.proxyLog.API.URL}}{{end}}</div>
   <div style="height:20px;margin:4px 0px 0px 4px;">
-    RequestURL：{{if .proxyLog.Application}}{{.proxyLog.Application.OldHost}}{{end}}{{.proxyLog.OldRequestURL}}</div>
+    RequestURL：{{if .proxyLog.Application}}{{.proxyLog.Application.Host}}{{end}}{{.proxyLog.OldRequestURL}}</div>
   <div class="container-fluid">
     <div class="row initContainer" id="initco">
       <div class="col-lg-5" id="rmsp">
