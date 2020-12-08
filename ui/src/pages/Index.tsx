@@ -244,9 +244,27 @@ export default (): React.ReactNode => {
       dataIndex: 'option',
       valueType: 'option',
       fixed: 'right',
-      width: 100,
-      render: (_, record: ProxyLog) => (
-        <>
+      width: 150,
+      render: (_, record: ProxyLog) => {
+        let copyTextLocal = ``
+        let copyText = `curl -v -X ${record.OldRequestMethod}`;
+
+        const header = JSON.parse(record.OldRequestHeader)
+        Object.keys(header).forEach(item => {
+          copyText += ` -H "${item}:${header[item][0]}"`
+        })
+
+        switch (record.OldRequestMethod) {
+          case "GET":
+            break;
+          default:
+            copyText += ` -d ${record.OldRequestBody}`
+            break;
+        }
+        copyTextLocal = `${copyText} http://localhost:8080/${record.OldRequestURL}`
+
+        copyText += ` ${record.Application ? record.Application.Host : ""}${record.OldRequestURL}`
+        return <>
           <a target="_blank" rel="noreferrer" href={`/proxylog/${record.ID}`}>对比</a>
           <Divider type="vertical" />
           <a onClick={async () => {
@@ -259,8 +277,11 @@ export default (): React.ReactNode => {
               return false;
             }
           }}>重发</a>
+          <Divider type="vertical" />
+          <Text copyable={{ text: copyText, tooltips: ['原始curl'] }} />
+          <Text copyable={{ text: copyTextLocal, tooltips: ['本地curl'] }} />
         </>
-      ),
+      },
     },
   ];
 
