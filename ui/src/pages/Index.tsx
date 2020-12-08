@@ -8,6 +8,7 @@ import ApiSelect from '@/components/ApiSelect';
 import { deleteDiffStrategy, insertDiffStrategy, queryDiffStrategyList } from '@/services/diffstrategy';
 
 import { DiffStrategy, ProxyLog } from '@/services/API.d';
+import { toLower } from 'lodash';
 
 const { Panel } = Collapse;
 
@@ -250,8 +251,12 @@ export default (): React.ReactNode => {
         let copyText = `curl -v -X ${record.OldRequestMethod}`;
 
         const header = JSON.parse(record.OldRequestHeader)
-        Object.keys(header).forEach(item => {
-          copyText += ` -H "${item}:${header[item][0]}"`
+        Object.keys(header).forEach(key => {
+          const lowerKey = toLower(key)
+          if (lowerKey == "content-length" || lowerKey == "accept-encoding") {
+            return;
+          }
+          copyText += ` -H "${key}:${header[key][0]}"`
         })
 
         switch (record.OldRequestMethod) {
@@ -259,13 +264,13 @@ export default (): React.ReactNode => {
             break;
           default:
             if (record.OldRequestBody) {
-              copyText += ` -d ${record.OldRequestBody}`
+              copyText += ` -d '${record.OldRequestBody}'`
             }
             break;
         }
-        copyTextLocal = `${copyText} http://localhost:8080${record.OldRequestURL.replaceAll('&','\\&')}`
+        copyTextLocal = `${copyText} http://localhost:8080${record.OldRequestURL.replaceAll('&', '\\&')}`
 
-        copyText += ` ${record.Application ? record.Application.Host : ""}${record.OldRequestURL.replaceAll('&','\\&')}`
+        copyText += ` ${record.Application ? record.Application.Host : ""}${record.OldRequestURL.replaceAll('&', '\\&')}`
         return <>
           <a target="_blank" rel="noreferrer" href={`/proxylog/${record.ID}`}>对比</a>
           <Divider type="vertical" />

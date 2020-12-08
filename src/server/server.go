@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"compress/gzip"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -154,7 +155,14 @@ func matchURL(apiInfoMap map[string]*entity.API, restfulURLMap map[string][]stri
 	return apiInfoMap[restfulURL]
 }
 
-var cli = http.DefaultClient
+// ErrorDontRedirect 自定义不要重定向错误
+var ErrorDontRedirect = errors.New("don't redirect")
+
+var cli = &http.Client{
+	CheckRedirect: func(req *http.Request, via []*http.Request) error {
+		return ErrorDontRedirect
+	},
+}
 
 var application *entity.Application
 var apiInfoMap map[string]*entity.API
@@ -276,7 +284,7 @@ func logResponseBody() gin.HandlerFunc {
 			newBeginTime := time.Now().UnixNano()
 			//发送镜像请求
 			newResponse, err := cli.Do(newRequest)
-			if err != nil {
+			if err != nil && err != ErrorDontRedirect {
 				log.Err(err).Msg("cli.Do(newRequest)")
 			}
 			if newResponse != nil {
