@@ -258,12 +258,14 @@ export default (): React.ReactNode => {
           case "GET":
             break;
           default:
-            copyText += ` -d ${record.OldRequestBody}`
+            if (record.OldRequestBody) {
+              copyText += ` -d ${record.OldRequestBody}`
+            }
             break;
         }
-        copyTextLocal = `${copyText} http://localhost:8080/${record.OldRequestURL}`
+        copyTextLocal = `${copyText} http://localhost:8080${record.OldRequestURL.replaceAll('&','\\&')}`
 
-        copyText += ` ${record.Application ? record.Application.Host : ""}${record.OldRequestURL}`
+        copyText += ` ${record.Application ? record.Application.Host : ""}${record.OldRequestURL.replaceAll('&','\\&')}`
         return <>
           <a target="_blank" rel="noreferrer" href={`/proxylog/${record.ID}`}>对比</a>
           <Divider type="vertical" />
