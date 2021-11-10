@@ -14,20 +14,21 @@ import (
 )
 
 // CreateAPP 创建应用
-func CreateAPP(appName string, oldHost string, newHost string) (err error) {
-	if appName == "" || oldHost == "" {
-		err = errors.New("appName or oldHost is null")
+func CreateAPP(appName string, proxyHost string, imageHost string, main string) (err error) {
+	if appName == "" || proxyHost == "" {
+		err = errors.New("appName or proxyHost is null")
 		return
 	}
 	repository.InitConn()
 
-	oldHost = strings.TrimRight(oldHost, "/")
-	newHost = strings.TrimRight(newHost, "/")
+	proxyHost = strings.TrimRight(proxyHost, "/")
+	imageHost = strings.TrimRight(imageHost, "/")
 
 	var app = &entity.Application{
-		Name:    appName,
-		OldHost: oldHost,
-		NewHost: newHost,
+		Name:      appName,
+		ProxyHost: proxyHost,
+		ImageHost: imageHost,
+		Main:      main,
 	}
 	app.Status = true
 	err = repository.DB.Where(&entity.Application{Name: appName}).FirstOrCreate(app).Error
@@ -49,7 +50,7 @@ func TermShowListAPP() (result []entity.Application) {
 	var dataLines = make([][]string, len(result)+1)
 	dataLines[0] = appHeader
 	for index, item := range result {
-		dataLines[index+1] = []string{item.Name, item.OldHost, item.NewHost, strconv.FormatBool(item.Status), item.CreatedAt.Format(util.TimeFormat)}
+		dataLines[index+1] = []string{item.Name, item.ProxyHost, item.ImageHost, strconv.FormatBool(item.Status), item.CreatedAt.Format(util.TimeFormat)}
 	}
 
 	pterm.DefaultTable.WithHasHeader().WithData(dataLines).Render()

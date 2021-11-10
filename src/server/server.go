@@ -55,8 +55,8 @@ func Run(appName string) {
 
 	g := gin.Default()
 	g.Use(logResponseBody())
-	oldHost, _ := url.Parse(application.OldHost)
-	proxy := httputil.NewSingleHostReverseProxy(oldHost)
+	proxyHost, _ := url.Parse(application.ProxyHost)
+	proxy := httputil.NewSingleHostReverseProxy(proxyHost)
 	// proxy.Transport = &http.Transport{
 	// 	Proxy: func(*http.Request) (*url.URL, error) {
 	// 		return url.Parse("http://127.0.0.1:8899")
@@ -65,7 +65,7 @@ func Run(appName string) {
 	// 		InsecureSkipVerify: true, // 忽略证书验证
 	// 	},
 	// }
-	host := strings.ReplaceAll(application.OldHost, "https://", "")
+	host := strings.ReplaceAll(application.ProxyHost, "https://", "")
 	host = strings.ReplaceAll(host, "http://", "")
 	host = strings.TrimRight(host, "/")
 	var handlerFunc = func(c *gin.Context) {
@@ -192,9 +192,9 @@ func logResponseBody() gin.HandlerFunc {
 		c.Writer = w
 
 		proxyLog := &entity.ProxyLog{
-			ApplicationID:    application.ID,
-			OldRequestMethod: c.Request.Method,
-			Status:           true,
+			ApplicationID:      application.ID,
+			ProxyRequestMethod: c.Request.Method,
+			Status:             true,
 		}
 		if apiInfo != nil {
 			//如果是配置的API，那么没有支持的接口不进行代理日志处理，这样是为了屏蔽部分接口大量调用导致数据过多
@@ -235,23 +235,23 @@ func logResponseBody() gin.HandlerFunc {
 		}
 		c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(requestData))
 
-		proxyLog.OldRequestBody = string(requestData)
-		proxyLog.OldRequestURL = c.Request.RequestURI
+		proxyLog.ProxyRequestBody = string(requestData)
+		proxyLog.ProxyRequestURL = c.Request.RequestURI
 
 		requestHeaderBts, err := json.Marshal(c.Request.Header)
 		if err != nil {
 			log.Err(err).Msg("json.Marshal(c.Request.Header)")
 		}
-		proxyLog.OldRequestHeader = string(requestHeaderBts)
+		proxyLog.ProxyRequestHeader = string(requestHeaderBts)
 
 		oldBeginTime := time.Now().UnixNano()
 		c.Next()
-		proxyLog.OldResponseStatus = c.Writer.Status()
+		proxyLog.ProxyResponseStatus = c.Writer.Status()
 		responseHeaderBts, err := json.Marshal(c.Writer.Header())
 		if err != nil {
 			log.Err(err).Msg("json.Marshal(c.Writer.Header())")
 		}
-		proxyLog.OldResponseHeader = string(responseHeaderBts)
+		proxyLog.ProxyResponseHeader = string(responseHeaderBts)
 
 		// 判断返回信息是否压缩
 		contentEncoding := c.Writer.Header().Get("Content-Encoding")
@@ -260,49 +260,49 @@ func logResponseBody() gin.HandlerFunc {
 			reader, _ := gzip.NewReader(w.body)
 			if reader != nil {
 				readerBts, _ := ioutil.ReadAll(reader)
-				proxyLog.OldResponseBody = string(readerBts)
+				proxyLog.ProxyResponseBody = string(readerBts)
 			}
 		// todo 支持其他压缩算法
 		default:
-			proxyLog.OldResponseBody = w.body.String()
+			proxyLog.ProxyResponseBody = w.body.String()
 		}
-		proxyLog.OldDuration = (time.Now().UnixNano() - oldBeginTime) / 1e6
+		proxyLog.ProxyDuration = (time.Now().UnixNano() - oldBeginTime) / 1e6
 
 		//配置了新的站点，接口不在配置列表里默认允许get镜像，接口在配置列表里则按照配置是否允许镜像
-		if application.NewHost != "" && ((apiInfo == nil && c.Request.Method == "GET") ||
+		if application.ImageHost != "" && ((apiInfo == nil && c.Request.Method == "GET") ||
 			(apiInfo != nil &&
 				((c.Request.Method == "GET" && apiInfo.GETAllowMirror) ||
 					(c.Request.Method == "POST" && apiInfo.POSTAllowMirror) ||
 					(c.Request.Method == "PUT" && apiInfo.PUTAllowMirror) ||
 					(c.Request.Method == "PATCH" && apiInfo.PATCHAllowMirror) ||
 					(c.Request.Method == "DELETE" && apiInfo.DELETEAllowMirror)))) {
-			newRequest, err := http.NewRequest(c.Request.Method, application.NewHost+c.Request.RequestURI, bytes.NewReader(requestData))
+			imageRequest, err := http.NewRequest(c.Request.Method, application.ImageHost+c.Request.RequestURI, bytes.NewReader(requestData))
 			if err != nil {
-				log.Err(err).Msg("http.NewRequest")
+				log.Err(err).Msg("http.ImageRequest")
 			}
-			newRequest.Header = c.Request.Header
+			imageRequest.Header = c.Request.Header
 			newBeginTime := time.Now().UnixNano()
 			//发送镜像请求
-			newResponse, err := cli.Do(newRequest)
+			imageResponse, err := cli.Do(imageRequest)
 			if err != nil && err != ErrorDontRedirect {
-				log.Err(err).Msg("cli.Do(newRequest)")
+				log.Err(err).Msg("cli.Do(imageRequest)")
 			}
-			if newResponse != nil {
-				proxyLog.NewDuration = (time.Now().UnixNano() - newBeginTime) / 1e6
-				proxyLog.NewResponseStatus = newResponse.StatusCode
-				newResponseHeaderBts, err := json.Marshal(newResponse.Header)
-				proxyLog.NewResponseHeader = string(newResponseHeaderBts)
+			if imageResponse != nil {
+				proxyLog.ImageDuration = (time.Now().UnixNano() - newBeginTime) / 1e6
+				proxyLog.ImageResponseStatus = imageResponse.StatusCode
+				imageResponseHeaderBts, err := json.Marshal(imageResponse.Header)
+				proxyLog.ImageResponseHeader = string(imageResponseHeaderBts)
 
-				newResponseBody, err := ioutil.ReadAll(newResponse.Body)
+				imageResponseBody, err := ioutil.ReadAll(imageResponse.Body)
 				if err != nil {
-					log.Err(err).Msg("ioutil.ReadAll(newResponse.Body)")
+					log.Err(err).Msg("ioutil.ReadAll(imageResponse.Body)")
 				}
-				proxyLog.NewResponseBody = string(newResponseBody)
+				proxyLog.ImageResponseBody = string(imageResponseBody)
 			}
 		}
-		fmt.Println(proxyLog.OldResponseStatus)
-		fmt.Println(proxyLog.OldResponseHeader)
-		fmt.Println(proxyLog.OldResponseBody)
+		fmt.Println(proxyLog.ProxyResponseStatus)
+		fmt.Println(proxyLog.ProxyResponseHeader)
+		fmt.Println(proxyLog.ProxyResponseBody)
 		result, err := service.InsertProwyLog(proxyLog)
 		if !result {
 			log.Err(err).Msg("WriteLog Failed")

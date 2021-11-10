@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -28,6 +29,11 @@ func Run() {
 			time.Sleep(time.Second * 10)
 		}
 	}()
+	go func() {
+		//每隔24小时清理90天前的对比数据
+		service.DeleteProxyLogBefore(time.Now().AddDate(0, -3, 0))
+		time.Sleep(24 * time.Hour)
+	}()
 
 	g := gin.Default()
 	group := g.Group("/api")
@@ -46,6 +52,7 @@ func Run() {
 			c.String(http.StatusOK, err.Error())
 			return
 		}
+		fmt.Printf("%v\n", proxyLog)
 		c.HTML(http.StatusOK, "detail.tmpl", gin.H{
 			"proxyLog": proxyLog,
 		})
@@ -82,16 +89,16 @@ func Run() {
 			return
 		}
 		var body io.Reader
-		if proxyLog.OldRequestMethod != "GET" {
-			body = strings.NewReader(proxyLog.OldRequestBody)
+		if proxyLog.ProxyRequestMethod != "GET" {
+			body = strings.NewReader(proxyLog.ProxyRequestBody)
 		}
-		req, err := http.NewRequest(proxyLog.OldRequestMethod, proxyLog.Application.Host+proxyLog.OldRequestURL, body)
+		req, err := http.NewRequest(proxyLog.ProxyRequestMethod, proxyLog.Application.Host+proxyLog.ProxyRequestURL, body)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 		header := http.Header{}
-		json.Unmarshal([]byte(proxyLog.OldRequestHeader), &header)
+		json.Unmarshal([]byte(proxyLog.ProxyRequestHeader), &header)
 		if header != nil {
 			req.Header = header
 		}
@@ -202,5 +209,6 @@ func Run() {
 		c.Abort()
 	})
 
+	log.Println(viper.GetInt("dashboardPort"))
 	g.Run(fmt.Sprintf(":%d", viper.GetInt("dashboardPort")))
 }

@@ -16,10 +16,11 @@ type Model struct {
 
 // Application 代理程序列表
 type Application struct {
-	Name    string `gorm:"type:varchar(50);default:'';not null"`  //代理应用名称
-	Host    string `gorm:"type:varchar(255);default:'';not null"` //代理地址 http(s)://domain
-	OldHost string `gorm:"type:varchar(255);default:'';not null"` //旧应用地址 http(s)://(ip:port|localDomain)
-	NewHost string `gorm:"type:varchar(255);default:'';not null"` //新应用地址 http(s)://(ip:port|localDomain)
+	Name      string `gorm:"type:varchar(50);default:'';not null"`      //代理应用名称
+	Host      string `gorm:"type:varchar(255);default:'';not null"`     //代理地址 http(s)://domain
+	ProxyHost string `gorm:"type:varchar(255);default:'';not null"`     //代理应用地址 http(s)://(ip:port|localDomain)
+	ImageHost string `gorm:"type:varchar(255);default:'';not null"`     //镜像应用地址 http(s)://(ip:port|localDomain)
+	Main      string `gorm:"type:varchar(20);default:'proxy';not null"` //proxy 或 image，对比时依哪个站点的数据为主
 	Model
 	APIs []*API
 }
@@ -56,24 +57,25 @@ type API struct {
 
 // ProxyLog 代理日志
 type ProxyLog struct {
-	ApplicationID     uint   `gorm:"default:0;not null;index"`             //应用程序ID
-	APIID             uint   `gorm:"default:0;not null;index"`             //接口ID
-	OldRequestMethod  string `gorm:"type:varchar(10);default:'';not null"` //旧应用接口请求方法
-	OldRequestURL     string `gorm:"type:text;not null"`                   //旧应用接口请求url
-	OldRequestHeader  string `gorm:"type:text;not null"`                   //旧应用接口请求头
-	OldRequestBody    string `gorm:"type:mediumtext;not null"`             //旧应用接口请求body
-	OldResponseHeader string `gorm:"type:text;not null"`                   //旧应用接口返回头
-	OldResponseBody   string `gorm:"type:mediumtext;not null"`             //旧应用接口返回body
-	OldResponseStatus int    `gorm:"default:0;not null;index"`             //旧应用接口返回状态
-	OldDuration       int64  `gorm:"default:0;not null;"`                  //旧应用接口执行时间
+	ApplicationID       uint   `gorm:"default:0;not null;index"`             //应用程序ID
+	APIID               uint   `gorm:"default:0;not null;index"`             //接口ID
+	ProxyRequestMethod  string `gorm:"type:varchar(10);default:'';not null"` //代理应用接口请求方法
+	ProxyRequestURL     string `gorm:"type:text;not null"`                   //代理应用接口请求url
+	ProxyRequestHeader  string `gorm:"type:text;not null"`                   //代理应用接口请求头
+	ProxyRequestBody    string `gorm:"type:mediumtext;not null"`             //代理应用接口请求body
+	ProxyResponseHeader string `gorm:"type:text;not null"`                   //代理应用接口返回头
+	ProxyResponseBody   string `gorm:"type:mediumtext;not null"`             //代理应用接口返回body
+	ProxyResponseStatus int    `gorm:"default:0;not null;index"`             //代理应用接口返回状态
+	ProxyDuration       int64  `gorm:"default:0;not null;"`                  //代理应用接口执行时间
 
-	NewResponseHeader string `gorm:"type:text;not null"`       //新应用接口返回头
-	NewResponseBody   string `gorm:"type:mediumtext;not null"` //新应用接口返回body
-	NewResponseStatus int    `gorm:"default:0;not null;index"` //新应用接口返回状态
-	NewDuration       int64  `gorm:"default:0;not null;"`      //新应用接口持续时间
+	ImageResponseHeader string `gorm:"type:text;not null"`       //镜像应用接口返回头
+	ImageResponseBody   string `gorm:"type:mediumtext;not null"` //镜像应用接口返回body
+	ImageResponseStatus int    `gorm:"default:0;not null;index"` //镜像应用接口返回状态
+	ImageDuration       int64  `gorm:"default:0;not null;"`      //镜像应用接口持续时间
 
-	AnalysisResult    string `gorm:"type:text;not null"`  //初步分析结果
-	AnalysisDiffCount int    `gorm:"default:0;not null;"` //初步分析不同数量
+	AnalysisStatus    string `gorm:"type:varchar(10);default:'N';not null"` //初步分析状态，N未分析，Y已分析
+	AnalysisResult    string `gorm:"type:text;not null"`                    //初步分析结果
+	AnalysisDiffCount int    `gorm:"default:0;not null;"`                   //初步分析不同数量
 	Model
 
 	Status      bool `gorm:"type:tinyint(1);default:0;not null"` //状态，是否有效数据

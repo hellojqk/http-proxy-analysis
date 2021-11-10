@@ -21,9 +21,10 @@ import (
 )
 
 var (
-	name    *string
-	oldHost *string
-	newHost *string
+	name      *string
+	proxyHost *string
+	imageHost *string
+	main      *string
 )
 
 // createAPPCmd represents the app command
@@ -32,7 +33,7 @@ var createAPPCmd = &cobra.Command{
 	Short: "创建应用",
 	Long:  `创建应用`,
 	Run: func(cmd *cobra.Command, args []string) {
-		err := service.CreateAPP(*name, *oldHost, *newHost)
+		err := service.CreateAPP(*name, *proxyHost, *imageHost, *main)
 		if err != nil {
 			panic(err)
 		}
@@ -43,13 +44,14 @@ func init() {
 	createCmd.AddCommand(createAPPCmd)
 
 	name = createAPPCmd.Flags().StringP("appName", "a", "", "应用名称,create 时指定")
-	oldHost = createAPPCmd.Flags().StringP("oldHost", "o", "", "旧应用地址,create 时指定")
-	newHost = createAPPCmd.Flags().StringP("newHost", "n", "", "新应用地址,create 时指定")
+	proxyHost = createAPPCmd.Flags().StringP("proxyHost", "p", "", "被代理应用地址,create 时指定")
+	imageHost = createAPPCmd.Flags().StringP("imageHost", "i", "", "镜像到应用地址,create 时指定")
+	main = createAPPCmd.Flags().StringP("main", "m", "proxy", "proxy 或 image，对比时依哪个站点的数据为主")
 
 	createAPPCmd.MarkFlagRequired("appName")
-	createAPPCmd.MarkFlagRequired("oldHost")
+	createAPPCmd.MarkFlagRequired("proxyHost")
 	// //绑定到viper上
 	// viper.BindPFlag("app.name", createAPPCmd.Flags().Lookup("name"))
-	// viper.BindPFlag("app.oldHost", createAPPCmd.Flags().Lookup("oldHost"))
-	// viper.BindPFlag("app.newHost", createAPPCmd.Flags().Lookup("newHost"))
+	// viper.BindPFlag("app.proxyHost", createAPPCmd.Flags().Lookup("proxyHost"))
+	// viper.BindPFlag("app.imageHost", createAPPCmd.Flags().Lookup("imageHost"))
 }

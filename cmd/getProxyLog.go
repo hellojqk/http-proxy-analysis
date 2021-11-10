@@ -31,7 +31,7 @@ var getProxyLogCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		repository.InitConn()
 		service.ListProxyLog(&model.ProxyLogListRequestParam{ProxyLog: entity.ProxyLog{
-			OldRequestURL: "cost",
+			ProxyRequestURL: "cost",
 		}, PageParam: model.PageParam{PageSize: 10}})
 	},
 }

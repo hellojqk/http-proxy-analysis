@@ -1,6 +1,8 @@
 package service
 
 import (
+	"time"
+
 	"github.com/hellojqk/http-proxy-analysis/src/entity"
 	"github.com/hellojqk/http-proxy-analysis/src/model"
 	"github.com/hellojqk/http-proxy-analysis/src/repository"
@@ -15,10 +17,10 @@ func InsertProwyLog(proxyLog *entity.ProxyLog) (bool, error) {
 // ListProxyLog .
 func ListProxyLog(pageParam *model.ProxyLogListRequestParam) (result []entity.ProxyLog, total int64, err error) {
 	result = make([]entity.ProxyLog, 0)
-	oldRequestURL := pageParam.OldRequestURL
+	oldRequestURL := pageParam.ProxyRequestURL
 
 	if oldRequestURL != "" {
-		pageParam.OldRequestURL = ""
+		pageParam.ProxyRequestURL = ""
 	}
 
 	db := repository.DB.Debug().Model(&entity.ProxyLog{}).Where(pageParam.ProxyLog)
@@ -46,4 +48,9 @@ func ListProxyLog(pageParam *model.ProxyLogListRequestParam) (result []entity.Pr
 // GetProxyLog .
 func GetProxyLog(proxyLog *entity.ProxyLog) error {
 	return repository.DB.Preload("Application").Preload("API").First(proxyLog, proxyLog.ID).Error
+}
+
+// DeleteProxyLogBefore .
+func DeleteProxyLogBefore(createAt time.Time) error {
+	return repository.DB.Debug().Where(" created_at < ?", createAt).Delete(&entity.ProxyLog{}).Error
 }
