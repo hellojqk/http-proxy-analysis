@@ -84,7 +84,7 @@ const AnalysisContent: React.FC<{ dataSource: any, APIID: number }> = ({ dataSou
                                     message.error('失败');
                                     return false;
                                 }
-                            }}>忽略【.{fieldAry[fieldAry.length - 1]}】部分差异</a>
+                            }}>忽略【.{fieldAry[fieldAry.length - 1]}】差异</a>
                         </Space>
                     </Space>)
                 })}
