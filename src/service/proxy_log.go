@@ -52,5 +52,27 @@ func GetProxyLog(proxyLog *entity.ProxyLog) error {
 
 // DeleteProxyLogBefore .
 func DeleteProxyLogBefore(createAt time.Time) error {
-	return repository.DB.Debug().Where(" created_at < ?", createAt).Delete(&entity.ProxyLog{}).Error
+	return repository.DB.Where(" created_at < ?", createAt).Delete(&entity.ProxyLog{}).Error
+}
+
+// DeleteProxyLogBeforeCount 每个API只保留最新的count条数据
+func DeleteProxyLogBeforeCount(count int) error {
+	//至少保留1000条日志
+	if count <= 1000 {
+		count = 1000
+	}
+	apps, err := ListAPP(true)
+	if err != nil {
+		return err
+	}
+	for _, app := range apps {
+		if len(app.APIs) == 0 {
+			continue
+		}
+		for _, api := range app.APIs {
+			repository.DB.Where("api_id=? and id < (select id from (SELECT id from hpa_proxy_log where api_id=? order by id desc LIMIT 1 OFFSET ?) t)", api.ID, api.ID, count).Delete(&entity.ProxyLog{})
+		}
+	}
+	repository.DB.Where("api_id=? and id < (select id from (SELECT id from hpa_proxy_log where api_id=? order by id desc LIMIT 1 OFFSET ?) t)", 0, 0, count).Delete(&entity.ProxyLog{})
+	return nil
 }

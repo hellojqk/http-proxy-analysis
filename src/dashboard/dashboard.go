@@ -31,6 +31,7 @@ func Run() {
 	}()
 	go func() {
 		//每隔24小时清理90天前的对比数据
+		service.DeleteProxyLogBeforeCount(5000)
 		service.DeleteProxyLogBefore(time.Now().AddDate(0, -3, 0))
 		time.Sleep(24 * time.Hour)
 	}()

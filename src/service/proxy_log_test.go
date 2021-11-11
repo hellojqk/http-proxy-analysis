@@ -54,3 +54,7 @@ func TestDeleteProxyLogBefore(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func TestDeleteProxyLogBeforeCount(t *testing.T) {
+	DeleteProxyLogBeforeCount(40000)
+}
