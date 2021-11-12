@@ -17,9 +17,9 @@ func InsertProwyLog(proxyLog *entity.ProxyLog) (bool, error) {
 // ListProxyLog .
 func ListProxyLog(pageParam *model.ProxyLogListRequestParam) (result []entity.ProxyLog, total int64, err error) {
 	result = make([]entity.ProxyLog, 0)
-	oldRequestURL := pageParam.ProxyRequestURL
+	proxyRequestURL := pageParam.ProxyRequestURL
 
-	if oldRequestURL != "" {
+	if proxyRequestURL != "" {
 		pageParam.ProxyRequestURL = ""
 	}
 
@@ -33,8 +33,8 @@ func ListProxyLog(pageParam *model.ProxyLogListRequestParam) (result []entity.Pr
 		db = db.Where("created_at < ?", pageParam.CreatedAtEnd)
 	}
 
-	if oldRequestURL != "" {
-		db = db.Where("old_request_url like ?", "%"+oldRequestURL+"%")
+	if proxyRequestURL != "" {
+		db = db.Where("proxy_request_url like ?", "%"+proxyRequestURL+"%")
 	}
 
 	err = db.Count(&total).Error

@@ -182,7 +182,7 @@ export default (): React.ReactNode => {
             },
         },
         {
-            title: '状态',
+            title: '镜像状态',
             width: 100,
             align: "center",
             dataIndex: 'ImageResponseStatus',

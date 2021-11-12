@@ -30,10 +30,21 @@ func Run() {
 		}
 	}()
 	go func() {
-		//每隔24小时清理90天前的对比数据
-		service.DeleteProxyLogBeforeCount(5000)
-		service.DeleteProxyLogBefore(time.Now().AddDate(0, -3, 0))
-		time.Sleep(24 * time.Hour)
+		for {
+			var count = viper.GetInt("log-history-count")
+			var maxDay = viper.GetInt("log-history-max-day")
+			if maxDay == 0 {
+				maxDay = 30
+			}
+			if count == 0 {
+				count = 1000
+			}
+			log.Printf("历史记录保留配置，最大天数：%d\t单个API最大记录数：%d %v", maxDay, count, time.Now().AddDate(0, 0, 0-maxDay))
+			//每隔36小时或重启时清理90天前的对比数据
+			service.DeleteProxyLogBeforeCount(count)
+			service.DeleteProxyLogBefore(time.Now().AddDate(0, 0, 0-maxDay))
+			time.Sleep(36 * time.Hour)
+		}
 	}()
 
 	g := gin.Default()
