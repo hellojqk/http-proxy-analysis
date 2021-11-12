@@ -31,10 +31,10 @@ func Run() {
 	}()
 	go func() {
 		for {
-			var clean = viper.GetBool("log-history-clean")
+			var clean = viper.GetBool("log_history_clean")
 
-			var count = viper.GetInt("log-history-count")
-			var maxDay = viper.GetInt("log-history-max-day")
+			var count = viper.GetInt("log_history_count")
+			var maxDay = viper.GetInt("log_history_max_day")
 			if maxDay == 0 {
 				maxDay = 30
 			}
