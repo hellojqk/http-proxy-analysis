@@ -31,6 +31,8 @@ func Run() {
 	}()
 	go func() {
 		for {
+			var clean = viper.GetBool("log-history-clean")
+
 			var count = viper.GetInt("log-history-count")
 			var maxDay = viper.GetInt("log-history-max-day")
 			if maxDay == 0 {
@@ -39,7 +41,11 @@ func Run() {
 			if count == 0 {
 				count = 1000
 			}
-			log.Printf("历史记录保留配置，最大天数：%d\t单个API最大记录数：%d %v", maxDay, count, time.Now().AddDate(0, 0, 0-maxDay))
+			log.Printf("历史记录保留配置，最大天数：%d\t单个API最大记录数：%d\t是否清理：%v", maxDay, count, clean)
+			if !clean {
+				time.Sleep(10 * time.Second)
+				continue
+			}
 			//每隔36小时或重启时清理90天前的对比数据
 			service.DeleteProxyLogBeforeCount(count)
 			service.DeleteProxyLogBefore(time.Now().AddDate(0, 0, 0-maxDay))
