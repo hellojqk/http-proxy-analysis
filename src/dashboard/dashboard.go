@@ -118,15 +118,18 @@ func Run() {
 		header := http.Header{}
 		json.Unmarshal([]byte(proxyLog.ProxyRequestHeader), &header)
 		if header != nil {
+			header.Del("Via")
 			req.Header = header
 		}
 
-		_, err = cli.Do(req)
+		var resp *http.Response
+		resp, err = cli.Do(req)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
-		c.JSON(http.StatusOK, gin.H{})
+		// log.Println(resp.Status)
+		c.JSON(resp.StatusCode, gin.H{"url": proxyLog.Application.Host + proxyLog.ProxyRequestURL, "header": resp.Header, "body": resp.Body})
 	})
 
 	//获取应用程序数据

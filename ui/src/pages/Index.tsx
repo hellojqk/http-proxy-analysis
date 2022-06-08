@@ -325,16 +325,16 @@ export default (): React.ReactNode => {
                         <Panel header="请求发送内容" key="4">
                             <p>{record.ProxyRequestBody}</p>
                         </Panel>
-                        <Panel header={`代理返回头部信息，Status：${record.ProxyResponseStatus}`} key="5">
+                        <Panel header={`代理返回Header，Status：${record.ProxyResponseStatus}`} key="5">
                             <p>{record.ProxyResponseHeader}</p>
                         </Panel>
-                        <Panel header="代理返回头部信息" key="6">
+                        <Panel header="代理返回Body" key="6">
                             <p>{record.ProxyResponseBody}</p>
                         </Panel>
-                        <Panel header={`镜像返回头部信息，Status：${record.ImageResponseStatus}`} key="7">
+                        <Panel header={`镜像返回Header，Status：${record.ImageResponseStatus}`} key="7">
                             <p>{record.ImageResponseHeader}</p>
                         </Panel>
-                        <Panel header="镜像返回头部信息" key="8">
+                        <Panel header="镜像返回Body" key="8">
                             <p>{record.ImageResponseBody}</p>
                         </Panel>
                     </Collapse>,

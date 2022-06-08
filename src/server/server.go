@@ -293,11 +293,30 @@ func logResponseBody() gin.HandlerFunc {
 				imageResponseHeaderBts, err := json.Marshal(imageResponse.Header)
 				proxyLog.ImageResponseHeader = string(imageResponseHeaderBts)
 
-				imageResponseBody, err := ioutil.ReadAll(imageResponse.Body)
-				if err != nil {
-					log.Err(err).Msg("ioutil.ReadAll(imageResponse.Body)")
+				// 判断返回信息是否压缩
+				contentEncoding := imageResponse.Header.Get("Content-Encoding")
+				switch strings.ToLower(contentEncoding) {
+				case "gzip":
+					var reader *gzip.Reader
+					reader, err = gzip.NewReader(imageResponse.Body)
+					if err != nil {
+						log.Err(err).Msg("gzip.NewReader(imageResponse.Body)")
+					}
+					if reader != nil {
+						readerBts, err := ioutil.ReadAll(reader)
+						if err != nil {
+							log.Err(err).Msg("ioutil.ReadAll(reader)")
+						}
+						proxyLog.ImageResponseBody = string(readerBts)
+					}
+				// todo 支持其他压缩算法
+				default:
+					readerBts, err := ioutil.ReadAll(imageResponse.Body)
+					if err != nil {
+						log.Err(err).Msg("ioutil.ReadAll(imageResponse.Body)")
+					}
+					proxyLog.ImageResponseBody = string(readerBts)
 				}
-				proxyLog.ImageResponseBody = string(imageResponseBody)
 			}
 		}
 		fmt.Println(proxyLog.ProxyResponseStatus)
