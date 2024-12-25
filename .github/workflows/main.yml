@@ -2,58 +2,56 @@ name: Go
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 env:
   IMAGE_NAME: hellojqk/http-proxy-analysis
 
 jobs:
-
   build:
     name: Build
     runs-on: ubuntu-latest
 
     steps:
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2
 
-    - name: Check out code into the Go module directory
-      uses: actions/checkout@v2
+      - name: Use Node.js 12.x
+        uses: actions/setup-node@v2.1.2
+        with:
+          node-version: 12.x
 
-    - name: Use Node.js 12.x
-      uses: actions/setup-node@v2.1.2
-      with:
-        node-version: 12.x
-
-    - name: Build Ant Design React UI
-      run: |
+      - name: Build Ant Design React UI
+        run: |
           cd ./ui
           npm ci
           npm run build
 
-    - name: Set up Go 1.x
-      uses: actions/setup-go@v2
-      with:
-        go-version: ^1.15.4
+      - name: Set up Go 1.x
+        uses: actions/setup-go@v2
+        with:
+          go-version: ^1.15.4
 
-    - name: Get dependencies
-      run: |
-        go get -v -t -d ./...
-        if [ -f Gopkg.toml ]; then
-            curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-            dep ensure
-        fi
+      - name: Get dependencies
+        run: |
+          go get -v -t -d ./...
+          if [ -f Gopkg.toml ]; then
+              curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+              dep ensure
+          fi
 
-    - name: Build Go Bin
-      run: go build -v -o ./bin/hpa .
+      - name: Build Go Bin
+        run: go build -v -o ./bin/hpa .
 
-    - name: Build image
-      run: docker build -t $IMAGE_NAME .
+      - name: Build image
+        run: docker build -t $IMAGE_NAME .
 
-    - name: Log into registry
-      run: docker login -u "${{ secrets.DOCKER_USERNAME }}" -p "${{ secrets.DOCKER_PASSWORD }}"
+      - name: Log into registry
+        run: docker login -u "${{ secrets.DOCKER_USERNAME }}" -p "${{ secrets.DOCKER_PASSWORD }}"
 
-    - name: Push image
-      run: |
+      - name: Push image
+        run: |
           docker tag $IMAGE_NAME $IMAGE_NAME:dev
           docker push $IMAGE_NAME:dev

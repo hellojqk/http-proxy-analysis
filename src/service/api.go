@@ -136,7 +136,7 @@ func ListAPI(applicationID uint) (result []entity.API, err error) {
 	return
 }
 
-//UpdateAPI API更新
+// UpdateAPI API更新
 func UpdateAPI(id uint, columns map[string]interface{}) (err error) {
 	err = repository.DB.Model(&entity.API{}).Where(&entity.API{Model: entity.Model{ID: id}}).
 		UpdateColumns(columns).Error
