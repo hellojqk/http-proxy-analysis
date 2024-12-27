@@ -31,7 +31,7 @@ func CreateAPP(appName string, proxyHost string, imageHost string, main string) 
 		Main:      main,
 	}
 	app.Status = true
-	err = repository.DB.Where(&entity.Application{Name: appName}).FirstOrCreate(app).Error
+	err = repository.DB.Debug().Where(&entity.Application{Name: appName}).FirstOrCreate(app).Error
 	return
 }
 
@@ -41,7 +41,7 @@ var appHeader = []string{"APP_NAME", "OLD_HOST", "NEW_HOST", "STATUS", "CREATE_T
 func TermShowListAPP() (result []entity.Application) {
 	repository.InitConn()
 	result = make([]entity.Application, 0, 1)
-	err := repository.DB.Find(&result).Error
+	err := repository.DB.Debug().Find(&result).Error
 	if err != nil {
 		log.Err(err).Msg("list app")
 		return
@@ -60,11 +60,14 @@ func TermShowListAPP() (result []entity.Application) {
 // ListAPP .
 func ListAPP(containAPIInfo bool) (result []entity.Application, err error) {
 	result = make([]entity.Application, 0, 1)
-	db := repository.DB
+	db := repository.DB.Debug()
 	if containAPIInfo {
-		db = db.Preload("APIs")
+		db = db.Preload("APIs", func(db *gorm.DB) *gorm.DB {
+			return db.Order("ID desc") // 按照 `created_at` 字段降序排序
+		})
 	}
-	err = db.Find(&result).Error
+	err = db.Where(&entity.Application{Model: entity.Model{Status: true}}).Order("ID desc").Find(&result).Error
+	// err = db.Find(&result).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		log.Err(err).Msg("list app")
 		return
@@ -75,9 +78,25 @@ func ListAPP(containAPIInfo bool) (result []entity.Application, err error) {
 // GetAPP 获取应用信息
 func GetAPP(appName string) (*entity.Application, error) {
 	var app = &entity.Application{Name: appName}
-	err := repository.DB.Where(&entity.Application{Name: appName}).Preload("APIs").First(app).Error
+	err := repository.DB.Debug().Where(&entity.Application{Name: appName}).Preload("APIs").First(app).Error
 	if err != nil {
 		return nil, err
 	}
 	return app, nil
+}
+
+// UpdateAPP 更新应用信息
+func UpdateAPP(app *entity.Application) error {
+	return repository.DB.Debug().UpdateColumns(app).Error
+}
+
+// DeleteAPP 删除应用
+func DeleteAPP(app *entity.Application) error {
+	return repository.DB.Debug().Model(&app).UpdateColumn("Status", "flase").Error
+}
+
+// CreateAppByModel 创建应用
+func CreateAppByModel(app *entity.Application) error {
+	app.Status = true
+	return repository.DB.Debug().Create(app).Error
 }

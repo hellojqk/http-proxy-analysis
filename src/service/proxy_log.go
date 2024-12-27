@@ -23,7 +23,25 @@ func ListProxyLog(pageParam *model.ProxyLogListRequestParam) (result []entity.Pr
 		pageParam.ProxyRequestURL = ""
 	}
 
-	db := repository.DB.Debug().Model(&entity.ProxyLog{}).Where(pageParam.ProxyLog)
+	db := repository.DB.Debug().Model(&entity.ProxyLog{})
+	if pageParam.ApplicationID != 0 {
+		db.Where("application_id = ?", pageParam.ApplicationID)
+	}
+	if pageParam.APIID != 0 {
+		db.Where("api_id = ?", pageParam.APIID)
+	}
+	if pageParam.ProxyRequestURL != "" {
+		db.Where("proxy_request_url like ?", "%"+pageParam.ProxyRequestURL+"%")
+	}
+	if pageParam.ProxyRequestMethod != "" {
+		db.Where("proxy_request_method = ?", pageParam.ProxyRequestMethod)
+	}
+	if pageParam.ProxyResponseStatus != 0 {
+		db.Where("proxy_response_status = ?", pageParam.ProxyResponseStatus)
+	}
+	if pageParam.ImageResponseStatus != 0 {
+		db.Where("image_response_status = ?", pageParam.ImageResponseStatus)
+	}
 
 	if pageParam.CreatedAtBegin != "" {
 		db = db.Where("created_at >= ?", pageParam.CreatedAtBegin)
@@ -35,6 +53,13 @@ func ListProxyLog(pageParam *model.ProxyLogListRequestParam) (result []entity.Pr
 
 	if proxyRequestURL != "" {
 		db = db.Where("proxy_request_url like ?", "%"+proxyRequestURL+"%")
+	}
+	//有差异
+	if pageParam.AnalysisDiffCount == 1 {
+		db = db.Where("analysis_diff_count > 0")
+		//无差异
+	} else if pageParam.AnalysisDiffCount == -1 {
+		db = db.Where("analysis_diff_count = 0")
 	}
 
 	err = db.Count(&total).Error

@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -65,9 +65,8 @@ func Run(appName string) {
 	// 		InsecureSkipVerify: true, // 忽略证书验证
 	// 	},
 	// }
-	host := strings.ReplaceAll(application.ProxyHost, "https://", "")
-	host = strings.ReplaceAll(host, "http://", "")
-	host = strings.TrimRight(host, "/")
+	host := proxyHost.Host
+
 	var handlerFunc = func(c *gin.Context) {
 		c.Request.Header.Set("Host", host)
 		c.Request.Host = host
@@ -233,7 +232,7 @@ func logResponseBody() gin.HandlerFunc {
 		if err != nil {
 			log.Err(err).Msg("c.GetRawData()")
 		}
-		c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(requestData))
+		c.Request.Body = io.NopCloser(bytes.NewBuffer(requestData))
 
 		proxyLog.ProxyRequestBody = string(requestData)
 		proxyLog.ProxyRequestURL = c.Request.RequestURI
@@ -259,7 +258,7 @@ func logResponseBody() gin.HandlerFunc {
 		case "gzip":
 			reader, _ := gzip.NewReader(w.body)
 			if reader != nil {
-				readerBts, _ := ioutil.ReadAll(reader)
+				readerBts, _ := io.ReadAll(reader)
 				proxyLog.ProxyResponseBody = string(readerBts)
 			}
 		// todo 支持其他压缩算法
@@ -291,6 +290,9 @@ func logResponseBody() gin.HandlerFunc {
 				proxyLog.ImageDuration = (time.Now().UnixNano() - newBeginTime) / 1e6
 				proxyLog.ImageResponseStatus = imageResponse.StatusCode
 				imageResponseHeaderBts, err := json.Marshal(imageResponse.Header)
+				if err != nil {
+					log.Err(err).Msg("json.Marshal(imageResponse.Header)")
+				}
 				proxyLog.ImageResponseHeader = string(imageResponseHeaderBts)
 
 				// 判断返回信息是否压缩
@@ -303,25 +305,25 @@ func logResponseBody() gin.HandlerFunc {
 						log.Err(err).Msg("gzip.NewReader(imageResponse.Body)")
 					}
 					if reader != nil {
-						readerBts, err := ioutil.ReadAll(reader)
+						readerBts, err := io.ReadAll(reader)
 						if err != nil {
-							log.Err(err).Msg("ioutil.ReadAll(reader)")
+							log.Err(err).Msg("io.ReadAll(reader)")
 						}
 						proxyLog.ImageResponseBody = string(readerBts)
 					}
 				// todo 支持其他压缩算法
 				default:
-					readerBts, err := ioutil.ReadAll(imageResponse.Body)
+					readerBts, err := io.ReadAll(imageResponse.Body)
 					if err != nil {
-						log.Err(err).Msg("ioutil.ReadAll(imageResponse.Body)")
+						log.Err(err).Msg("io.ReadAll(imageResponse.Body)")
 					}
 					proxyLog.ImageResponseBody = string(readerBts)
 				}
 			}
 		}
-		fmt.Println(proxyLog.ProxyResponseStatus)
-		fmt.Println(proxyLog.ProxyResponseHeader)
-		fmt.Println(proxyLog.ProxyResponseBody)
+		// fmt.Println(proxyLog.ProxyResponseStatus)
+		// fmt.Println(proxyLog.ProxyResponseHeader)
+		// fmt.Println(proxyLog.ProxyResponseBody)
 		result, err := service.InsertProwyLog(proxyLog)
 		if !result {
 			log.Err(err).Msg("WriteLog Failed")

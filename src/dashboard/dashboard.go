@@ -43,7 +43,7 @@ func Run() {
 			}
 			log.Printf("历史记录保留配置，最大天数：%d\t单个API最大记录数：%d\t是否清理：%v", maxDay, count, clean)
 			if !clean {
-				time.Sleep(10 * time.Second)
+				time.Sleep(1 * time.Minute)
 				continue
 			}
 			//每隔36小时或重启时清理90天前的对比数据
@@ -141,6 +141,45 @@ func Run() {
 		}
 		c.JSON(http.StatusOK, list)
 	})
+	group.POST("/application", func(c *gin.Context) {
+		model := &entity.Application{}
+		if err := c.ShouldBind(model); err != nil {
+			c.String(http.StatusOK, err.Error())
+			return
+		}
+		err := service.CreateAppByModel(model)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{})
+	})
+	group.PUT("/application", func(c *gin.Context) {
+		model := &entity.Application{}
+		if err := c.ShouldBind(model); err != nil {
+			c.String(http.StatusOK, err.Error())
+			return
+		}
+		err := service.UpdateAPP(model)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{})
+	})
+	group.DELETE("/application", func(c *gin.Context) {
+		model := &entity.Application{}
+		if err := c.ShouldBind(model); err != nil {
+			c.String(http.StatusOK, err.Error())
+			return
+		}
+		err := service.DeleteAPP(model)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{})
+	})
 
 	//获取应用程序数据
 	group.GET("/diff_strategy", func(c *gin.Context) {
@@ -181,7 +220,7 @@ func Run() {
 			c.String(http.StatusOK, err.Error())
 			return
 		}
-		list, err := service.ListAPI(app.ID)
+		list, err := service.ListAPI(&entity.API{ApplicationID: app.ID})
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
@@ -202,6 +241,45 @@ func Run() {
 			return
 		}
 		err := service.UpdateAPI(model.ID, modelMap)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{})
+	})
+	group.GET("/api", func(c *gin.Context) {
+		model := &entity.API{}
+		if err := c.ShouldBind(model); err != nil {
+			c.String(http.StatusOK, err.Error())
+			return
+		}
+		list, err := service.ListAPI(model)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, list)
+	})
+	group.POST("/api", func(c *gin.Context) {
+		model := &entity.API{}
+		if err := c.ShouldBind(model); err != nil {
+			c.String(http.StatusOK, err.Error())
+			return
+		}
+		err := service.CreateAPIByModel(model)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{})
+	})
+	group.PUT("/api", func(c *gin.Context) {
+		model := &entity.API{}
+		if err := c.ShouldBind(model); err != nil {
+			c.String(http.StatusOK, err.Error())
+			return
+		}
+		err := service.UpdateAPIByModel(model)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return

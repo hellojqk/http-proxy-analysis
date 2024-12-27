@@ -2,7 +2,7 @@ package service
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strconv"
 	"strings"
@@ -32,7 +32,7 @@ func ImportSwaggerDoc(appName string, url string) {
 		return
 	}
 
-	respBts, err := ioutil.ReadAll(resp.Body)
+	respBts, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Err(err).Msg("reader swagger doc error")
 		return
@@ -40,6 +40,10 @@ func ImportSwaggerDoc(appName string, url string) {
 
 	var m = make(map[string]interface{})
 	err = json.Unmarshal(respBts, &m)
+	if err != nil {
+		log.Err(err).Msg("unmarshal swagger doc error")
+		return
+	}
 	paths, ok := m["paths"]
 	if !ok {
 		log.Warn().Msg("cant find paths from swagger doc")
@@ -126,9 +130,20 @@ func TermShowAPI() (result []entity.API) {
 }
 
 // ListAPI 获取API列表
-func ListAPI(applicationID uint) (result []entity.API, err error) {
+func ListAPI(api *entity.API) (result []entity.API, err error) {
 	result = make([]entity.API, 0, 1)
-	err = repository.DB.Where(&entity.API{ApplicationID: applicationID}).Find(&result).Error
+	//根据applicationId和路由模糊搜索
+
+	// 动态构建查询条件
+	query := repository.DB.Model(api)
+	if api.ApplicationID > 0 {
+		query = query.Where("application_id = ?", api.ApplicationID)
+	}
+	if api.URL != "" {
+		query = query.Where("URL like ?", "%"+api.URL+"%")
+	}
+
+	err = query.Order("ID desc").Find(&result).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		log.Err(err).Msg("ListAPI")
 		return
@@ -142,6 +157,26 @@ func UpdateAPI(id uint, columns map[string]interface{}) (err error) {
 		UpdateColumns(columns).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		log.Err(err).Msg("UpdateAPI")
+		return
+	}
+	return
+}
+
+// CreateAPIByModel 创建API
+func CreateAPIByModel(api *entity.API) (err error) {
+	err = repository.DB.Create(api).Error
+	if err != nil {
+		log.Err(err).Msg("CreateAPIByModel")
+		return
+	}
+	return
+}
+
+// UpdateAPIByModel 更新API
+func UpdateAPIByModel(api *entity.API) (err error) {
+	err = repository.DB.Save(api).Error
+	if err != nil {
+		log.Err(err).Msg("UpdateAPIByModel")
 		return
 	}
 	return
