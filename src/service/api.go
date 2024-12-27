@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -37,9 +38,12 @@ func ImportSwaggerDoc(appName string, url string) {
 		log.Err(err).Msg("reader swagger doc error")
 		return
 	}
+	ImportSwagger(respBts, app.ID)
+}
 
+func ImportSwagger(content []byte, applicationID uint) {
 	var m = make(map[string]interface{})
-	err = json.Unmarshal(respBts, &m)
+	err := json.Unmarshal(content, &m)
 	if err != nil {
 		log.Err(err).Msg("unmarshal swagger doc error")
 		return
@@ -56,6 +60,8 @@ func ImportSwaggerDoc(appName string, url string) {
 	}
 	pathMap := paths.(map[string]interface{})
 
+	re := regexp.MustCompile(`/+`)
+
 	for path, pathItem := range pathMap {
 		if pathItem == nil {
 			log.Warn().Msgf("path:%s is null", path)
@@ -63,7 +69,7 @@ func ImportSwaggerDoc(appName string, url string) {
 		}
 		methodMap := pathItem.(map[string]interface{})
 
-		api := entity.API{ApplicationID: app.ID, URL: basePathStr + path}
+		api := entity.API{ApplicationID: applicationID, URL: basePathStr + path}
 		err := repository.DB.Where(&api).First(&api).Error
 		if err != nil && err != gorm.ErrRecordNotFound {
 			log.Err(err).Msg("find api error")
@@ -99,12 +105,19 @@ func ImportSwaggerDoc(appName string, url string) {
 		if api.ID == 0 {
 			api.Status = true
 		}
+
+		//正则对url中的连续多个/进行替换成一个/
+		api.URL = re.ReplaceAllString(api.URL, "/")
 		err = repository.DB.Save(&api).Error
 		if err != nil {
 			log.Err(err).Msg("api create error")
 			continue
 		}
 	}
+}
+
+func ImportSwaggerByModel(importSwagger *entity.ImportSwagger) {
+	ImportSwagger([]byte(importSwagger.Content), importSwagger.ApplicationID)
 }
 
 var apiHeader = []string{"APP_NAME", "URL", "GET", "POST", "PUT", "PATCH", "DELETE", "Status", "CreatedAt"}

@@ -273,6 +273,16 @@ func Run() {
 		}
 		c.JSON(http.StatusOK, gin.H{})
 	})
+
+	group.POST("/api/importSwagger", func(c *gin.Context) {
+		model := &entity.ImportSwagger{}
+		if err := c.ShouldBind(model); err != nil {
+			c.String(http.StatusOK, err.Error())
+			return
+		}
+		service.ImportSwaggerByModel(model)
+		c.JSON(http.StatusOK, gin.H{})
+	})
 	group.PUT("/api", func(c *gin.Context) {
 		model := &entity.API{}
 		if err := c.ShouldBind(model); err != nil {

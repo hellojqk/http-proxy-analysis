@@ -20,6 +20,15 @@ export async function save(data: TableListItem) {
     data: data
   })
 }
+
+export async function saveSwagger(data: any) {
+  return request("/api/api/importSwagger", {
+    method: "POST",
+    skipErrorHandler: true,
+    data: data
+  })
+}
+
 export async function remove(data: TableListItem) {
   return request("/api/api", {
     method: "DELETE",

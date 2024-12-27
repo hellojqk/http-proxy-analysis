@@ -93,3 +93,8 @@ type DiffStrategy struct {
 	APIID uint `gorm:"default:0;not null"` // 1部分策略时与API关联的ID
 	Model
 }
+
+type ImportSwagger struct {
+	ApplicationID uint
+	Content       string
+}

@@ -7,7 +7,7 @@ import { Button, Checkbox, FormInstance, message, Popconfirm } from 'antd';
 import { updateAPIFields } from '@/services/api';
 import { ModalForm, ProFormGroup, ProFormRadio, ProFormSelect, ProFormSwitch, ProFormText, ProFormTextArea } from '@ant-design/pro-components';
 import { TableListItem, TableListPagination } from './data';
-import { list, remove, save } from './service';
+import { list, remove, save, saveSwagger } from './service';
 import { PlusOutlined, UploadOutlined } from '@ant-design/icons';
 import { Application } from '@/services/data';
 
@@ -15,6 +15,7 @@ export default (): React.ReactNode => {
   const [createModalOpen, setCreateModalOpen] = useState<boolean>(false);
   const actionRef = useRef<ActionType>();
   const formRef = useRef<FormInstance>();
+  const swaggerFormRef = useRef<FormInstance>();
   const [applications, setApplications] = useState<Application[]>()
   const [swaggerModalOpen, setSwaggerModalOpen] = useState(false)
 
@@ -216,26 +217,38 @@ export default (): React.ReactNode => {
       <ModalForm<TableListItem>
         title="swagger导入"
         width="800px"
+        formRef={swaggerFormRef}
         open={swaggerModalOpen}
         onOpenChange={setSwaggerModalOpen}
         modalProps={{ forceRender: true }}
         onFinish={async (value) => {
-          // console.log("onFinish", value)
-          // let finishRes = false;
-          // await save(value).then(() => {
-          //   finishRes = true;
-          //   message.success({ content: "保存成功" })
-          //   actionRef.current?.reload()
-          // }).catch(error => {
-          //   finishRes = false;
-          //   message.error({ content: error.data?.errorMessage || "服务异常" })
-          // });
-          // return finishRes;
+          console.log("onFinish", value)
+          let finishRes = false;
+          await saveSwagger(value).then(() => {
+            finishRes = true;
+            message.success({ content: "保存成功" })
+            actionRef.current?.reload()
+          }).catch(error => {
+            finishRes = false;
+            message.error({ content: error.data?.errorMessage || "服务异常" })
+          });
+          return finishRes;
         }}
         layout='horizontal'
       >
-        <ProFormText width='lg' name="url" required rules={[{ required: true }]} label="URL地址" placeholder="" addonAfter={<Button>加载</Button>} />
-        <ProFormTextArea name="content" required rules={[{ required: true }]} label="内容" fieldProps={{ rows: 10 }} placeholder="" />
+        <ProFormSelect name="ApplicationID" label="所属应用" required rules={[{ required: true }]} options={applications?.map(m => ({ label: m.Name, value: m.ID }))} />
+        <ProFormText width='lg' name="url" label="URL地址" placeholder="" addonAfter={<Button onClick={async () => {
+          const url = swaggerFormRef.current?.getFieldValue("url")
+          console.log("url", url)
+          try {
+            const res = await window.fetch(url);
+            const data = res.json();
+            swaggerFormRef.current?.setFieldsValue({ content: JSON.stringify(data) })
+          } catch (ex) {
+            message.error({ content: "加载失败，请手动粘贴swagger文档内容" })
+          }
+        }}>加载</Button>} />
+        <ProFormTextArea name="content" required rules={[{ required: true }]} label="内容" fieldProps={{ rows: 10, placeholder: "swagger文档内容" }} placeholder="" />
       </ModalForm>
     </PageContainer>
   )
