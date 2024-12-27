@@ -25,8 +25,8 @@ jobs:
 
       - name: Build Ant Design React UI
         run: |
-          cd ./ui
-          npm ci
+          cd ./newui
+          npm i
           npm run build
 
       - name: Set up Go 1.x
