@@ -117,7 +117,7 @@ export default (): React.ReactNode => {
         }}
         >编辑</a>
         ,
-        <Popconfirm key="popconfirm" title={`确认删除${record.Name}吗?`} okText="是" cancelText="否" onConfirm={() => {
+        <Popconfirm key="popconfirm" title={`确认删除${record.URL}吗?`} okText="是" cancelText="否" onConfirm={() => {
           remove({ ID: record.ID }).then(() => {
             actionRef.current?.reload()
           }).catch((error) => {

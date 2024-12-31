@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { PageContainer } from '@ant-design/pro-layout';
 import ProTable, { ActionType, ProColumns } from '@ant-design/pro-table';
-import { Collapse, Divider, message, Tag, Typography, Table, Space } from 'antd';
-import { queryProxyLog, retryProxyLog } from '@/services/proxyLog';
+import { Collapse, Divider, message, Tag, Typography, Table, Space, Button } from 'antd';
+import { ignoreProxyLog, queryProxyLog, retryProxyLog, saveProxyLog } from '@/services/proxyLog';
 import ApplicationSelect from '@/components/ApplicationSelect';
 import ApiSelect from '@/components/ApiSelect';
 import { deleteDiffStrategy, insertDiffStrategy, queryDiffStrategyList } from '@/services/diffstrategy';
@@ -224,7 +224,14 @@ export default (): React.ReactNode => {
                     return <>-</>
                 }
                 if (record.AnalysisDiffCount > 0) {
-                    return <Tag color="red">{record.AnalysisDiffCount}</Tag>
+                    return <div><Tag color="red">{record.AnalysisDiffCount}</Tag><a style={{ color: "red" }} onClick={() => {
+                        ignoreProxyLog({ ID: record.ID }).then(() => {
+                            message.success({ content: "已忽略" })
+                            actionRef.current?.reload()
+                        }).catch(error => {
+                            message.error({ content: error.data?.errorMessage || "服务异常" })
+                        });
+                    }}>忽略</a></div>
                 }
 
                 return <Tag color="green">{record.AnalysisDiffCount}</Tag>;

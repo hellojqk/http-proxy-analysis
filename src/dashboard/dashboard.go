@@ -94,6 +94,20 @@ func Run() {
 		c.JSON(http.StatusOK, gin.H{"total": total, "data": list})
 	})
 
+	group.POST("/proxylog/ignore", func(c *gin.Context) {
+		model := &entity.ProxyLog{}
+		if err := c.ShouldBind(model); err != nil {
+			c.String(http.StatusOK, err.Error())
+			return
+		}
+		err := service.IgnoreProxyLog(model.ID)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{})
+	})
+
 	//重新请求
 	group.POST("/proxylog/:id/retry", func(c *gin.Context) {
 		proxyLog := &entity.ProxyLog{}
@@ -220,7 +234,7 @@ func Run() {
 			c.String(http.StatusOK, err.Error())
 			return
 		}
-		list, err := service.ListAPI(&entity.API{ApplicationID: app.ID})
+		list, err := service.ListAPI(&entity.API{ApplicationID: app.ID, Model: entity.Model{Status: true}})
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return
@@ -253,6 +267,7 @@ func Run() {
 			c.String(http.StatusOK, err.Error())
 			return
 		}
+		log.Printf("model:%+v", model)
 		list, err := service.ListAPI(model)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
@@ -290,6 +305,20 @@ func Run() {
 			return
 		}
 		err := service.UpdateAPIByModel(model)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{})
+	})
+
+	group.DELETE("/api", func(c *gin.Context) {
+		model := &entity.API{}
+		if err := c.ShouldBind(model); err != nil {
+			c.String(http.StatusOK, err.Error())
+			return
+		}
+		err := service.DeleteAPI(model)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 			return

@@ -1,6 +1,7 @@
 package service
 
 import (
+	"log"
 	"time"
 
 	"github.com/hellojqk/http-proxy-analysis/src/entity"
@@ -78,6 +79,16 @@ func GetProxyLog(proxyLog *entity.ProxyLog) error {
 // DeleteProxyLogBefore .
 func DeleteProxyLogBefore(createAt time.Time) error {
 	return repository.DB.Where(" created_at < ?", createAt).Delete(&entity.ProxyLog{}).Error
+}
+
+// UpdateProxyLog API更新
+func UpdateProxyLog(app *entity.ProxyLog) error {
+	log.Printf("update proxy log %+v", app)
+	return repository.DB.Debug().UpdateColumns(app).Error
+}
+
+func IgnoreProxyLog(id uint) error {
+	return repository.DB.Debug().Model(&entity.ProxyLog{}).Debug().Where("id = ?", id).UpdateColumns(map[string]interface{}{"analysis_diff_count": 0}).Error
 }
 
 // DeleteProxyLogBeforeCount 每个API只保留最新的count条数据

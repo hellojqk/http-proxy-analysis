@@ -7,6 +7,7 @@ export async function list(params: { current?: number; pageSize?: number; }, sor
   return request<{ data: TableListItem[]; total?: number; success?: boolean; }>('/api/api', {
     method: 'GET',
     params: {
+      Status: true,
       ...params,
       sort: sort
     },

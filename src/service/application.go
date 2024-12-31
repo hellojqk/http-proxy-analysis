@@ -92,7 +92,7 @@ func UpdateAPP(app *entity.Application) error {
 
 // DeleteAPP 删除应用
 func DeleteAPP(app *entity.Application) error {
-	return repository.DB.Debug().Model(&app).UpdateColumn("Status", "flase").Error
+	return repository.DB.Debug().Model(&app).UpdateColumn("Status", false).Error
 }
 
 // CreateAppByModel 创建应用
