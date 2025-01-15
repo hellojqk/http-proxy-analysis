@@ -16,6 +16,13 @@ jobs:
 
         steps:
             - uses: actions/checkout@v4
+            - name: Set up cache for Node modules
+              uses: actions/cache@v3
+              with:
+                  path: ui/node_modules
+                  key: ${{ runner.os }}-node_modules
+                  restore-keys: |
+                      ${{ runner.os }}-node_modules
 
             - name: Use Node.js 20.x
               uses: actions/setup-node@v4
