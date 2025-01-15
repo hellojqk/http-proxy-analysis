@@ -1,13 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { PageContainer } from '@ant-design/pro-layout';
 import ProTable, { ActionType, ProColumns } from '@ant-design/pro-table';
-import { Collapse, Divider, message, Tag, Typography, Table, Space } from 'antd';
-import { queryProxyLog, retryProxyLog } from '@/services/proxyLog';
+import { Collapse, Divider, message, Tag, Typography, Table, Space, Button } from 'antd';
+import { ignoreProxyLog, queryProxyLog, retryProxyLog, saveProxyLog } from '@/services/proxyLog';
 import ApplicationSelect from '@/components/ApplicationSelect';
 import ApiSelect from '@/components/ApiSelect';
 import { deleteDiffStrategy, insertDiffStrategy, queryDiffStrategyList } from '@/services/diffstrategy';
 
-import { DiffStrategy, ProxyLog } from '@/services/API.d';
+import { DiffStrategy, ProxyLog } from '@/services/data';
 import { toLower } from 'lodash';
 
 const { Panel } = Collapse;
@@ -47,9 +47,9 @@ const AnalysisContent: React.FC<{ dataSource: any, APIID: number }> = ({ dataSou
                 <Text>已采用忽略规则</Text>
                 {diffStrategyList.filter(f => f.APIID === 0 || f.APIID === APIID).map((item) => {
                     return (<Space>
-                        <Space style={{ width: 300 }}>{item.Field}</Space>
-                        <Space style={{ width: 300 }}>{item.Code}</Space>
-                        <Space style={{ width: 300 }}>
+                        <Space style={{ width: 500 }}>{item.Field}</Space>
+                        <Space style={{ width: 200 }}>{item.Code}</Space>
+                        <Space>
                             <a target="_blank" rel="noreferrer" onClick={async () => {
                                 try {
                                     await deleteDiffStrategy(item.ID);
@@ -71,9 +71,9 @@ const AnalysisContent: React.FC<{ dataSource: any, APIID: number }> = ({ dataSou
                     }
                     const fieldAry = item.Field.split(".")
                     return (<Space>
-                        <Space style={{ width: 300 }}>{item.Field}</Space>
-                        <Space style={{ width: 300 }}>{item.Code}</Space>
-                        <Space style={{ width: 300 }}>
+                        <Space style={{ width: 500 }}>{item.Field}</Space>
+                        <Space style={{ width: 200 }}>{item.Code}</Space>
+                        <Space>
                             <a onClick={async () => {
                                 try {
                                     await insertDiffStrategy({ Field: `.${fieldAry[fieldAry.length - 1]}`, Code: item.Code, APIID });
@@ -103,6 +103,8 @@ export default (): React.ReactNode => {
             title: '编号',
             dataIndex: 'ID',
             search: false,
+            width: 100,
+            sorter: true,
         },
         {
             title: '应用程序',
@@ -196,37 +198,84 @@ export default (): React.ReactNode => {
         },
         {
             title: '代理耗时',
-            width: 100,
+            width: 120,
             search: false,
             align: "center",
             dataIndex: 'ProxyDuration',
             tooltip: '接口耗时，毫秒',
+            sorter: true
         },
         {
             title: '镜像耗时',
-            width: 100,
+            width: 120,
             search: false,
             align: "center",
             dataIndex: 'ImageDuration',
             tooltip: '接口耗时，毫秒',
+            sorter: true
+        },
+        {
+            title: '代理耗时',
+            width: 200,
+            dataIndex: 'ProxyDurationBegin',
+            hideInTable: true,
+            fieldProps: {
+                placeholder: '>='
+            }
+        },
+        {
+            title: '代理耗时',
+            width: 200,
+            dataIndex: 'ProxyDurationEnd',
+            hideInTable: true,
+            fieldProps: {
+                placeholder: '<'
+            }
+        },
+        {
+            title: '镜像耗时',
+            width: 200,
+            dataIndex: 'ImageDurationBegin',
+            hideInTable: true,
+            fieldProps: {
+                placeholder: '>='
+            }
+        },
+        {
+            title: '镜像耗时',
+            width: 200,
+            dataIndex: 'ImageDurationEnd',
+            hideInTable: true,
+            fieldProps: {
+                placeholder: '<'
+            }
         },
         {
             title: '分析结果',
             width: 120,
-            search: false,
+            search: true,
             align: "center",
             dataIndex: 'AnalysisDiffCount',
+            valueEnum: { "-1": "无差异", "0": "全部", "1": "有差异" },
             tooltip: '后端服务初步分析的结果差异，详细差异见对比操作',
             render: (_, record) => {
                 if (record.AnalysisStatus === "N" || !record.ImageResponseBody) {
                     return <>-</>
                 }
                 if (record.AnalysisDiffCount > 0) {
-                    return <Tag color="red">{record.AnalysisDiffCount}</Tag>
+                    return <div><Tag color="red">{record.AnalysisDiffCount}</Tag><a style={{ color: "red" }} onClick={() => {
+                        ignoreProxyLog({ ID: record.ID }).then(() => {
+                            message.success({ content: "已忽略" })
+                            actionRef.current?.reload()
+                        }).catch(error => {
+                            message.error({ content: error.data?.errorMessage || "服务异常" })
+                        });
+                    }}>忽略</a></div>
                 }
 
                 return <Tag color="green">{record.AnalysisDiffCount}</Tag>;
             },
+            sorter: true
         },
         {
             title: '创建时间',
@@ -303,8 +352,8 @@ export default (): React.ReactNode => {
                 rowKey="ID"
                 search={{
                     // labelWidth: 80,
-                    span: 4,
-                    // defaultCollapsed: false,
+                    span: 6,
+                    defaultCollapsed: false,
                 }}
                 request={(params, sorter, filter) => queryProxyLog({ ...params, sorter, filter })}
                 columns={columns}

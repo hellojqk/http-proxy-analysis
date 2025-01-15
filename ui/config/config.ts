@@ -1,51 +1,45 @@
-// https://umijs.org/config/
-import { defineConfig } from 'umi';
-import defaultSettings from './defaultSettings';
-import proxy from './proxy';
-import routes from './routes';
-
-const { REACT_APP_ENV } = process.env;
+import { defineConfig } from '@umijs/max';
 
 export default defineConfig({
-  hash: true,
   antd: {},
-  dva: {
-    hmr: true,
-  },
-  base: "/ui/",
-  publicPath: "/ui/",
+  access: {},
+  model: {},
+  initialState: {},
+  request: {},
   layout: {
-    name: 'Ant Design Pro',
-    locale: true,
-    siderWidth: 208,
-    ...defaultSettings,
-    collapsed: true, // 侧边栏最小化
-  },
-  locale: {
-    // default zh-CN
-    default: 'zh-CN',
-    antd: true,
-    // default true, when it is true, will use `navigator.language` overwrite default
-    baseNavigator: true,
-  },
-  dynamicImport: {
-    loading: '@ant-design/pro-layout/es/PageLoading',
-  },
-  targets: {
-    ie: 11,
-  },
-  // umi routes: https://umijs.org/docs/routing
-  routes,
-  // Theme for antd: https://ant.design/docs/react/customize-theme-cn
-  theme: {
-    'primary-color': defaultSettings.primaryColor,
-  },
-  esbuild: {},
-  title: false,
-  ignoreMomentLocale: true,
-  proxy: proxy[REACT_APP_ENV || 'dev'],
-  manifest: {
-    basePath: '/',
+    title: 'HTTP请求对比',
   },
   exportStatic: {},
+  base: "/ui/",
+  publicPath: "/ui/",
+  routes: [
+    {
+      path: '/index',
+      name: '日志明细',
+      icon: 'diff',
+      component: './Index',
+    },
+    {
+      path: '/api/index',
+      name: '接口配置',
+      icon: 'api',
+      component: './api/Index',
+    },
+    {
+      path: '/application/index',
+      name: '应用配置',
+      icon: 'appstore',
+      component: './application/Index',
+    },
+    {
+      path: '/',
+      redirect: '/index',
+    },
+    {
+      path: '/404',
+      component: './404',
+    },
+  ],
+  npmClient: 'npm',
 });
+

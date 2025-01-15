@@ -19,6 +19,12 @@ import (
 
 var cli = http.Client{}
 
+func noCache(c *gin.Context) {
+	c.Header("Cache-Control", "no-cache, no-store, must-revalidate")
+	c.Header("Pragma", "no-cache")
+	c.Header("Expires", "0")
+}
+
 // Run .
 func Run() {
 	repository.InitConn()
@@ -55,8 +61,8 @@ func Run() {
 
 	g := gin.Default()
 	group := g.Group("/api")
-	g.Static("/assets", "./assets")
-	g.Static("/ui", "./ui/dist")
+	g.Use(noCache).Static("/assets", "./assets")
+	g.Use(noCache).Static("/ui", "./ui/dist")
 	g.LoadHTMLGlob("./assets/templates/*")
 	//查看详情
 	g.GET("/proxylog/:id", func(c *gin.Context) {

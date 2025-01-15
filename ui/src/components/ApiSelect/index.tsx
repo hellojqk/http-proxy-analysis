@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Select, } from 'antd';
 import { queryApplication } from "@/services/application"
-import { Application } from '@/services/API.d';
+import { Application } from '@/services/data';
 
 const ApiSelect = (props: any) => {
   const { form } = props

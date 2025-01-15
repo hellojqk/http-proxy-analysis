@@ -1,45 +1,45 @@
 name: Go
 
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+    push:
+        branches: [main]
+    pull_request:
+        branches: [main]
 
 env:
-  IMAGE_NAME: hellojqk/http-proxy-analysis
+    IMAGE_NAME: hellojqk/http-proxy-analysis
 
 jobs:
-  build:
-    name: Build
-    runs-on: ubuntu-latest
+    build:
+        name: Build
+        runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v4
+        steps:
+            - uses: actions/checkout@v4
 
-      - name: Use Node.js 20.x
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20.x
-      - run: cd newui
-      - run: npm i
-      - run: npm run build
+            - name: Use Node.js 20.x
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 20.x
+            - run: cd ui
+            - run: npm i
+            - run: npm run build
 
-      - name: Set up Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: "1.23.4"
+            - name: Set up Go
+              uses: actions/setup-go@v4
+              with:
+                  go-version: "1.23.4"
 
-      - name: Build
-        run: go build -v -o ./bin/hpa .
+            - name: Build
+              run: go build -v -o ./bin/hpa .
 
-      - name: Build image
-        run: docker build -t $IMAGE_NAME .
+            - name: Build image
+              run: docker build -t $IMAGE_NAME .
 
-      - name: Log into registry
-        run: docker login -u "${{ secrets.DOCKER_USERNAME }}" -p "${{ secrets.DOCKER_PASSWORD }}"
+            - name: Log into registry
+              run: docker login -u "${{ secrets.DOCKER_USERNAME }}" -p "${{ secrets.DOCKER_PASSWORD }}"
 
-      - name: Push image
-        run: |
-          docker tag $IMAGE_NAME $IMAGE_NAME:dev
-          docker push $IMAGE_NAME:dev
+            - name: Push image
+              run: |
+                  docker tag $IMAGE_NAME $IMAGE_NAME:dev
+                  docker push $IMAGE_NAME:dev
