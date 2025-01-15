@@ -104,6 +104,7 @@ export default (): React.ReactNode => {
             dataIndex: 'ID',
             search: false,
             width: 100,
+            sorter: true,
         },
         {
             title: '应用程序',
@@ -197,19 +198,57 @@ export default (): React.ReactNode => {
         },
         {
             title: '代理耗时',
-            width: 100,
+            width: 120,
             search: false,
             align: "center",
             dataIndex: 'ProxyDuration',
             tooltip: '接口耗时，毫秒',
+            sorter: true
         },
         {
             title: '镜像耗时',
-            width: 100,
+            width: 120,
             search: false,
             align: "center",
             dataIndex: 'ImageDuration',
             tooltip: '接口耗时，毫秒',
+            sorter: true
+        },
+        {
+            title: '代理耗时',
+            width: 200,
+            dataIndex: 'ProxyDurationBegin',
+            hideInTable: true,
+            fieldProps: {
+                placeholder: '>='
+            }
+        },
+        {
+            title: '代理耗时',
+            width: 200,
+            dataIndex: 'ProxyDurationEnd',
+            hideInTable: true,
+            fieldProps: {
+                placeholder: '<'
+            }
+        },
+        {
+            title: '镜像耗时',
+            width: 200,
+            dataIndex: 'ImageDurationBegin',
+            hideInTable: true,
+            fieldProps: {
+                placeholder: '>='
+            }
+        },
+        {
+            title: '镜像耗时',
+            width: 200,
+            dataIndex: 'ImageDurationEnd',
+            hideInTable: true,
+            fieldProps: {
+                placeholder: '<'
+            }
         },
         {
             title: '分析结果',
@@ -236,6 +275,7 @@ export default (): React.ReactNode => {
 
                 return <Tag color="green">{record.AnalysisDiffCount}</Tag>;
             },
+            sorter: true
         },
         {
             title: '创建时间',

@@ -7,6 +7,7 @@ import (
 	"github.com/hellojqk/http-proxy-analysis/src/entity"
 	"github.com/hellojqk/http-proxy-analysis/src/model"
 	"github.com/hellojqk/http-proxy-analysis/src/repository"
+	"github.com/hellojqk/http-proxy-analysis/src/util"
 )
 
 // InsertProwyLog .
@@ -52,6 +53,20 @@ func ListProxyLog(pageParam *model.ProxyLogListRequestParam) (result []entity.Pr
 		db = db.Where("created_at < ?", pageParam.CreatedAtEnd)
 	}
 
+	if pageParam.ProxyDurationBegin != 0 {
+		db = db.Where("proxy_duration >= ?", pageParam.ProxyDurationBegin)
+	}
+	if pageParam.ProxyDurationEnd != 0 {
+		db = db.Where("proxy_duration < ?", pageParam.ProxyDurationEnd)
+	}
+
+	if pageParam.ImageDurationBegin != 0 {
+		db = db.Where("image_duration >= ?", pageParam.ImageDurationBegin)
+	}
+	if pageParam.ImageDurationEnd != 0 {
+		db = db.Where("image_duration < ?", pageParam.ImageDurationEnd)
+	}
+
 	if proxyRequestURL != "" {
 		db = db.Where("proxy_request_url like ?", "%"+proxyRequestURL+"%")
 	}
@@ -67,7 +82,19 @@ func ListProxyLog(pageParam *model.ProxyLogListRequestParam) (result []entity.Pr
 	if err != nil || total == 0 {
 		return
 	}
-	err = db.Limit(pageParam.PageSize).Offset((pageParam.Current - 1) * pageParam.PageSize).Preload("Application").Preload("API").Order("id desc").Find(&result).Error
+	var order = "id desc"
+	if pageParam.Sorter != nil {
+		if pageParam.Sorter["ID"] != "" {
+			order = "id " + util.Ternary(pageParam.Sorter["ID"] == "ascend", "asc", "desc")
+		} else if pageParam.Sorter["ProxyDuration"] != "" {
+			order = "proxy_duration " + util.Ternary(pageParam.Sorter["ProxyDuration"] == "ascend", "asc", "desc")
+		} else if pageParam.Sorter["ImageDuration"] != "" {
+			order = "image_duration " + util.Ternary(pageParam.Sorter["ImageDuration"] == "ascend", "asc", "desc")
+		} else if pageParam.Sorter["AnalysisDiffCount"] != "" {
+			order = "analysis_diff_count " + util.Ternary(pageParam.Sorter["AnalysisDiffCount"] == "ascend", "asc", "desc")
+		}
+	}
+	err = db.Limit(pageParam.PageSize).Offset((pageParam.Current - 1) * pageParam.PageSize).Preload("Application").Preload("API").Order(order).Find(&result).Error
 	return
 }
 
