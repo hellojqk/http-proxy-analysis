@@ -191,7 +191,7 @@ func CreateAPIByModel(api *entity.API) (err error) {
 
 // UpdateAPIByModel 更新API
 func UpdateAPIByModel(api *entity.API) (err error) {
-	err = repository.DB.Debug().Save(api).Error
+	err = repository.DB.Debug().UpdateColumns(api).Error
 	if err != nil {
 		log.Err(err).Msg("UpdateAPIByModel")
 		return
